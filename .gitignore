@@ -1,0 +1,4 @@
+ovoslam/submodules/segment-anything-langsplat
+__pycache__
+*.ipynb
+data/

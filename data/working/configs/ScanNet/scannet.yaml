@@ -1,0 +1,10 @@
+dataset_name: "scannet"
+cam: 
+  H: 480 
+  W: 640
+  fx: 577.590698
+  fy: 578.729797
+  cx: 318.905426
+  cy: 242.683609
+  depth_scale: 1000.
+  crop_edge: 16

@@ -1,0 +1,815 @@
+dataset: scannet200
+num_classes: 200
+scenes: [scene0011_00, scene0050_00, scene0231_00, scene0378_00, scene0518_00]
+valid_class_ids: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 21, 22, 23, 24, 26, 27, 28, 29, 31, 32, 33, 34, 35, 36, 38, 39, 40, 41, 42, 44, 45, 46, 47, 48, 49, 50, 51, 52, 54, 55, 56, 57, 58, 59, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 82, 84, 86, 87, 88, 89, 90, 93, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 110, 112, 115, 116, 118, 120, 121, 122, 125, 128, 130, 131, 132, 134, 136, 138, 139, 140, 141, 145, 148, 154, 155, 156, 157, 159, 161, 163, 165, 166, 168, 169, 170, 177, 180, 185, 188, 191, 193, 195, 202, 208, 213, 214, 221, 229, 230, 232, 233, 242, 250, 261, 264, 276, 283, 286, 300, 304, 312, 323, 325, 331, 342, 356, 370, 392, 395, 399, 408, 417, 488, 540, 562, 570, 572, 581, 609, 748, 776, 1156, 1163, 1164, 1165, 1166, 1167, 1168, 1169, 1170, 1171, 1172, 1173, 1174, 1175, 1176, 1178, 1179, 1180, 1181, 1182, 1183, 1184, 1185, 1186, 1187, 1188, 1189, 1190, 1191]
+class_popularity: []
+ignore: [-1]
+background_reduced_ids: [1, 3, 36]
+class_names_reduced:
+- wall
+- chair
+- floor
+- table
+- door
+- couch
+- cabinet
+- shelf
+- desk
+- office chair
+- bed
+- pillow
+- sink
+- picture
+- window
+- toilet
+- bookshelf
+- monitor
+- curtain
+- book
+- armchair
+- coffee table
+- box
+- refrigerator
+- lamp
+- kitchen cabinet
+- towel
+- clothes
+- tv
+- nightstand
+- counter
+- dresser
+- stool
+- cushion
+- plant
+- ceiling
+- bathtub
+- end table
+- dining table
+- keyboard
+- bag
+- backpack
+- toilet paper
+- printer
+- tv stand
+- whiteboard
+- blanket
+- shower curtain
+- trash can
+- closet
+- stairs
+- microwave
+- stove
+- shoe
+- computer tower
+- bottle
+- bin
+- ottoman
+- bench
+- board
+- washing machine
+- mirror
+- copier
+- basket
+- sofa chair
+- file cabinet
+- fan
+- laptop
+- shower
+- paper
+- person
+- paper towel dispenser
+- oven
+- blinds
+- rack
+- plate
+- blackboard
+- piano
+- suitcase
+- rail
+- radiator
+- recycling bin
+- container
+- wardrobe
+- soap dispenser
+- telephone
+- bucket
+- clock
+- stand
+- light
+- laundry basket
+- pipe
+- clothes dryer
+- guitar
+- toilet paper holder
+- seat
+- speaker
+- column
+- bicycle
+- ladder
+- bathroom stall
+- shower wall
+- cup
+- jacket
+- storage bin
+- coffee maker
+- dishwasher
+- paper towel roll
+- machine
+- mat
+- windowsill
+- bar
+- toaster
+- bulletin board
+- ironing board
+- fireplace
+- soap dish
+- kitchen counter
+- doorframe
+- toilet paper dispenser
+- mini fridge
+- fire extinguisher
+- ball
+- hat
+- shower curtain rod
+- water cooler
+- paper cutter
+- tray
+- shower door
+- pillar
+- ledge
+- toaster oven
+- mouse
+- toilet seat cover dispenser
+- furniture
+- cart
+- storage container
+- scale
+- tissue box
+- light switch
+- crate
+- power outlet
+- decoration
+- sign
+- projector
+- closet door
+- vacuum cleaner
+- candle
+- plunger
+- stuffed animal
+- headphones
+- dish rack
+- broom
+- guitar case
+- range hood
+- dustpan
+- hair dryer
+- water bottle
+- handicap bar
+- purse
+- vent
+- shower floor
+- water pitcher
+- mailbox
+- bowl
+- paper bag
+- alarm clock
+- music stand
+- projector screen
+- divider
+- laundry detergent
+- bathroom counter
+- object
+- bathroom vanity
+- closet wall
+- laundry hamper
+- bathroom stall door
+- ceiling light
+- trash bin
+- dumbbell
+- stair rail
+- tube
+- bathroom cabinet
+- cd case
+- closet rod
+- coffee kettle
+- structure
+- shower head
+- keyboard piano
+- case of water bottles
+- coat rack
+- storage organizer
+- folded chair
+- fire alarm
+- power strip
+- calendar
+- poster
+- potted plant
+- luggage
+- mattress
+map_to_reduced:
+  1: 0
+  2: 1
+  3: 2
+  4: 3
+  5: 4
+  6: 5
+  7: 6
+  8: 7
+  9: 8
+  10: 9
+  11: 10
+  13: 11
+  14: 12
+  15: 13
+  16: 14
+  17: 15
+  18: 16
+  19: 17
+  21: 18
+  22: 19
+  23: 20
+  24: 21
+  26: 22
+  27: 23
+  28: 24
+  29: 25
+  31: 26
+  32: 27
+  33: 28
+  34: 29
+  35: 30
+  36: 31
+  38: 32
+  39: 33
+  40: 34
+  41: 35
+  42: 36
+  44: 37
+  45: 38
+  46: 39
+  47: 40
+  48: 41
+  49: 42
+  50: 43
+  51: 44
+  52: 45
+  54: 46
+  55: 47
+  56: 48
+  57: 49
+  58: 50
+  59: 51
+  62: 52
+  63: 53
+  64: 54
+  65: 55
+  66: 56
+  67: 57
+  68: 58
+  69: 59
+  70: 60
+  71: 61
+  72: 62
+  73: 63
+  74: 64
+  75: 65
+  76: 66
+  77: 67
+  78: 68
+  79: 69
+  80: 70
+  82: 71
+  84: 72
+  86: 73
+  87: 74
+  88: 75
+  89: 76
+  90: 77
+  93: 78
+  95: 79
+  96: 80
+  97: 81
+  98: 82
+  99: 83
+  100: 84
+  101: 85
+  102: 86
+  103: 87
+  104: 88
+  105: 89
+  106: 90
+  107: 91
+  110: 92
+  112: 93
+  115: 94
+  116: 95
+  118: 96
+  120: 97
+  121: 98
+  122: 99
+  125: 100
+  128: 101
+  130: 102
+  131: 103
+  132: 104
+  134: 105
+  136: 106
+  138: 107
+  139: 108
+  140: 109
+  141: 110
+  145: 111
+  148: 112
+  154: 113
+  155: 114
+  156: 115
+  157: 116
+  159: 117
+  161: 118
+  163: 119
+  165: 120
+  166: 121
+  168: 122
+  169: 123
+  170: 124
+  177: 125
+  180: 126
+  185: 127
+  188: 128
+  191: 129
+  193: 130
+  195: 131
+  202: 132
+  208: 133
+  213: 134
+  214: 135
+  221: 136
+  229: 137
+  230: 138
+  232: 139
+  233: 140
+  242: 141
+  250: 142
+  261: 143
+  264: 144
+  276: 145
+  283: 146
+  286: 147
+  300: 148
+  304: 149
+  312: 150
+  323: 151
+  325: 152
+  331: 153
+  342: 154
+  356: 155
+  370: 156
+  392: 157
+  395: 158
+  399: 159
+  408: 160
+  417: 161
+  488: 162
+  540: 163
+  562: 164
+  570: 165
+  572: 166
+  581: 167
+  609: 168
+  748: 169
+  776: 170
+  1156: 171
+  1163: 172
+  1164: 173
+  1165: 174
+  1166: 175
+  1167: 176
+  1168: 177
+  1169: 178
+  1170: 179
+  1171: 180
+  1172: 181
+  1173: 182
+  1174: 183
+  1175: 184
+  1176: 185
+  1178: 186
+  1179: 187
+  1180: 188
+  1181: 189
+  1182: 190
+  1183: 191
+  1184: 192
+  1185: 193
+  1186: 194
+  1187: 195
+  1188: 196
+  1189: 197
+  1190: 198
+  1191: 199
+
+
+CLASS_LABELS_200:
+  - wall
+  - chair
+  - floor
+  - table
+  - door
+  - couch
+  - cabinet
+  - shelf
+  - desk
+  - office chair
+  - bed
+  - pillow
+  - sink
+  - picture
+  - window
+  - toilet
+  - bookshelf
+  - monitor
+  - curtain
+  - book
+  - armchair
+  - coffee table
+  - box
+  - refrigerator
+  - lamp
+  - kitchen cabinet
+  - towel
+  - clothes
+  - tv
+  - nightstand
+  - counter
+  - dresser
+  - stool
+  - cushion
+  - plant
+  - ceiling
+  - bathtub
+  - end table
+  - dining table
+  - keyboard
+  - bag
+  - backpack
+  - toilet paper
+  - printer
+  - tv stand
+  - whiteboard
+  - blanket
+  - shower curtain
+  - trash can
+  - closet
+  - stairs
+  - microwave
+  - stove
+  - shoe
+  - computer tower
+  - bottle
+  - bin
+  - ottoman
+  - bench
+  - board
+  - washing machine
+  - mirror
+  - copier
+  - basket
+  - sofa chair
+  - file cabinet
+  - fan
+  - laptop
+  - shower
+  - paper
+  - person
+  - paper towel dispenser
+  - oven
+  - blinds
+  - rack
+  - plate
+  - blackboard
+  - piano
+  - suitcase
+  - rail
+  - radiator
+  - recycling bin
+  - container
+  - wardrobe
+  - soap dispenser
+  - telephone
+  - bucket
+  - clock
+  - stand
+  - light
+  - laundry basket
+  - pipe
+  - clothes dryer
+  - guitar
+  - toilet paper holder
+  - seat
+  - speaker
+  - column
+  - bicycle
+  - ladder
+  - bathroom stall
+  - shower wall
+  - cup
+  - jacket
+  - storage bin
+  - coffee maker
+  - dishwasher
+  - paper towel roll
+  - machine
+  - mat
+  - windowsill
+  - bar
+  - toaster
+  - bulletin board
+  - ironing board
+  - fireplace
+  - soap dish
+  - kitchen counter
+  - doorframe
+  - toilet paper dispenser
+  - mini fridge
+  - fire extinguisher
+  - ball
+  - hat
+  - shower curtain rod
+  - water cooler
+  - paper cutter
+  - tray
+  - shower door
+  - pillar
+  - ledge
+  - toaster oven
+  - mouse
+  - toilet seat cover dispenser
+  - furniture
+  - cart
+  - storage container
+  - scale
+  - tissue box
+  - light switch
+  - crate
+  - power outlet
+  - decoration
+  - sign
+  - projector
+  - closet door
+  - vacuum cleaner
+  - candle
+  - plunger
+  - stuffed animal
+  - headphones
+  - dish rack
+  - broom
+  - guitar case
+  - range hood
+  - dustpan
+  - hair dryer
+  - water bottle
+  - handicap bar
+  - purse
+  - vent
+  - shower floor
+  - water pitcher
+  - mailbox
+  - bowl
+  - paper bag
+  - alarm clock
+  - music stand
+  - projector screen
+  - divider
+  - laundry detergent
+  - bathroom counter
+  - object
+  - bathroom vanity
+  - closet wall
+  - laundry hamper
+  - bathroom stall door
+  - ceiling light
+  - trash bin
+  - dumbbell
+  - stair rail
+  - tube
+  - bathroom cabinet
+  - cd case
+  - closet rod
+  - coffee kettle
+  - structure
+  - shower head
+  - keyboard piano
+  - case of water bottles
+  - coat rack
+  - storage organizer
+  - folded chair
+  - fire alarm
+  - power strip
+  - calendar
+  - poster
+  - potted plant
+  - luggage
+  - mattress
+
+SCANNET_COLOR_MAP_200:
+  0: [196, 51, 182]
+  1: [174, 199, 232]
+  2: [188, 189, 34]
+  3: [152, 223, 138]
+  4: [255, 152, 150]
+  5: [214, 39, 40]
+  6: [91, 135, 229]
+  7: [31, 119, 180]
+  8: [229, 91, 104]
+  9: [247, 182, 210]
+  10: [91, 229, 110]
+  11: [255, 187, 120]
+  12: [141, 91, 229]
+  13: [112, 128, 144]
+  14: [196, 156, 148]
+  15: [197, 176, 213]
+  16: [44, 160, 44]
+  17: [148, 103, 189]
+  18: [229, 91, 223]
+  19: [219, 219, 141]
+  20: [192, 229, 91]
+  21: [88, 218, 137]
+  22: [58, 98, 137]
+  23: [177, 82, 239]
+  24: [255, 127, 14]
+  25: [237, 204, 37]
+  26: [41, 206, 32]
+  27: [62, 143, 148]
+  28: [34, 14, 130]
+  29: [143, 45, 115]
+  30: [137, 63, 14]
+  31: [23, 190, 207]
+  32: [16, 212, 139]
+  33: [90, 119, 201]
+  34: [125, 30, 141]
+  35: [150, 53, 56]
+  36: [186, 197, 62]
+  37: [227, 119, 194]
+  38: [38, 100, 128]
+  39: [120, 31, 243]
+  40: [154, 59, 103]
+  41: [169, 137, 78]
+  42: [143, 245, 111]
+  43: [37, 230, 205]
+  44: [14, 16, 155]
+  45: [208, 49, 84]
+  46: [237, 80, 38]
+  47: [138, 175, 62]
+  48: [158, 218, 229]
+  49: [38, 96, 167]
+  50: [190, 77, 246]
+  51: [0, 0, 0]
+  52: [208, 193, 72]
+  53: [55, 220, 57]
+  54: [10, 125, 140]
+  55: [76, 38, 202]
+  56: [191, 28, 135]
+  57: [211, 120, 42]
+  58: [118, 174, 76]
+  59: [17, 242, 171]
+  60: [20, 65, 247]
+  61: [208, 61, 222]
+  62: [162, 62, 60]
+  63: [210, 235, 62]
+  64: [45, 152, 72]
+  65: [35, 107, 149]
+  66: [160, 89, 237]
+  67: [227, 56, 125]
+  68: [169, 143, 81]
+  69: [42, 143, 20]
+  70: [25, 160, 151]
+  71: [82, 75, 227]
+  72: [253, 59, 222]
+  73: [240, 130, 89]
+  74: [123, 172, 47]
+  75: [71, 194, 133]
+  76: [24, 94, 205]
+  77: [134, 16, 179]
+  78: [159, 32, 52]
+  79: [213, 208, 88]
+  80: [64, 158, 70]
+  81: [18, 163, 194]
+  82: [65, 29, 153]
+  83: [177, 10, 109]
+  84: [152, 83, 7]
+  85: [83, 175, 30]
+  86: [18, 199, 153]
+  87: [61, 81, 208]
+  88: [213, 85, 216]
+  89: [170, 53, 42]
+  90: [161, 192, 38]
+  91: [23, 241, 91]
+  92: [12, 103, 170]
+  93: [151, 41, 245]
+  94: [133, 51, 80]
+  95: [184, 162, 91]
+  96: [50, 138, 38]
+  97: [31, 237, 236]
+  98: [39, 19, 208]
+  99: [223, 27, 180]
+  100: [254, 141, 85]
+  101: [97, 144, 39]
+  102: [106, 231, 176]
+  103: [12, 61, 162]
+  104: [124, 66, 140]
+  105: [137, 66, 73]
+  106: [250, 253, 26]
+  107: [55, 191, 73]
+  108: [60, 126, 146]
+  109: [153, 108, 234]
+  110: [184, 58, 125]
+  111: [135, 84, 14]
+  112: [139, 248, 91]
+  113: [53, 200, 172]
+  114: [63, 69, 134]
+  115: [190, 75, 186]
+  116: [127, 63, 52]
+  117: [141, 182, 25]
+  118: [56, 144, 89]
+  119: [64, 160, 250]
+  120: [182, 86, 245]
+  121: [139, 18, 53]
+  122: [134, 120, 54]
+  123: [49, 165, 42]
+  124: [51, 128, 133]
+  125: [44, 21, 163]
+  126: [232, 93, 193]
+  127: [176, 102, 54]
+  128: [116, 217, 17]
+  129: [54, 209, 150]
+  130: [60, 99, 204]
+  131: [129, 43, 144]
+  132: [252, 100, 106]
+  133: [187, 196, 73]
+  134: [13, 158, 40]
+  135: [52, 122, 152]
+  136: [128, 76, 202]
+  137: [187, 50, 115]
+  138: [180, 141, 71]
+  139: [77, 208, 35]
+  140: [72, 183, 168]
+  141: [97, 99, 203]
+  142: [172, 22, 158]
+  143: [155, 64, 40]
+  144: [118, 159, 30]
+  145: [69, 252, 148]
+  146: [45, 103, 173]
+  147: [111, 38, 149]
+  148: [184, 9, 49]
+  149: [188, 174, 67]
+  150: [53, 206, 53]
+  151: [97, 235, 252]
+  152: [66, 32, 182]
+  153: [236, 114, 195]
+  154: [241, 154, 83]
+  155: [133, 240, 52]
+  156: [16, 205, 144]
+  157: [75, 101, 198]
+  158: [237, 95, 251]
+  159: [191, 52, 49]
+  160: [227, 254, 54]
+  161: [49, 206, 87]
+  162: [48, 113, 150]
+  163: [125, 73, 182]
+  164: [229, 32, 114]
+  165: [158, 119, 28]
+  166: [60, 205, 27]
+  167: [18, 215, 201]
+  168: [79, 76, 153]
+  169: [134, 13, 116]
+  170: [192, 97, 63]
+  171: [108, 163, 18]
+  172: [95, 220, 156]
+  173: [98, 141, 208]
+  174: [144, 19, 193]
+  175: [166, 36, 57]
+  176: [212, 202, 34]
+  177: [23, 206, 34]
+  178: [91, 211, 236]
+  179: [79, 55, 137]
+  180: [182, 19, 117]
+  181: [134, 76, 14]
+  182: [87, 185, 28]
+  183: [82, 224, 187]
+  184: [92, 110, 214]
+  185: [168, 80, 171]
+  186: [197, 63, 51]
+  187: [175, 199, 77]
+  188: [62, 180, 98]
+  189: [8, 91, 150]
+  190: [77, 15, 130]
+  191: [154, 65, 96]
+  192: [197, 152, 11]
+  193: [59, 155, 45]
+  194: [12, 147, 145]
+  195: [54, 35, 219]
+  196: [210, 73, 181]
+  197: [221, 124, 77]
+  198: [149, 214, 66]
+  199: [72, 185, 134]
+  200: [42, 94, 198]

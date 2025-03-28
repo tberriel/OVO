@@ -1,0 +1,29 @@
+dataset_name: "scannet"
+mapping:
+  new_submap_every: 10000
+  map_every: 5
+  iterations: 100
+  new_submap_iterations: 100
+  new_submap_points_num: 200000 
+  new_submap_gradient_points_num: 50000 
+  new_frame_sample_size: -1 #30000 
+  new_points_radius: 0.0000001
+  current_view_opt_iterations: 0.4 # What portion of iterations to spend on the current view
+  alpha_thre: 0.6
+  pruning_thre: 0.1
+  submap_using_motion_heuristic: False
+tracking:
+  gt_camera: False
+  w_color_loss: 0.6
+  iterations: 200
+  cam_rot_lr: 0.002
+  cam_trans_lr: 0.01
+  odometry_type: const_speed # gt, const_speed, odometer
+  help_camera_initialization: False # temp option to help const_init
+  init_err_ratio: 5
+  odometer_method: "hybrid" # hybrid or point_to_plane
+  filter_alpha: True
+  filter_outlier_depth: True
+  alpha_thre: 0.98
+  soft_alpha: True
+  mask_invalid_depth: True

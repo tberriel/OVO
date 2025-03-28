@@ -1,0 +1,23 @@
+model:
+  arch: model_0
+  mlp:
+    act_key: leaky_relu
+    h_dim: 13824
+    i_dim: 3456
+    n_layers: 4
+    o_dim: 3456
+  transformer:
+    d_model: 1152
+    dim_feedforward: 1152
+    dropout: 0.4
+    n_layers: 5
+optim:
+  learning_rate: 5.0e-06
+trainer:
+  accumulate_grad_batches: 1
+  check_val_every_n_epoch: 1
+  default_root_dir: ./data/output/clips_fusion/
+  gradient_clip_val: 1.0
+  limit_val_batches: 0.3
+  log_every_n_steps: 100
+  max_epochs: 15

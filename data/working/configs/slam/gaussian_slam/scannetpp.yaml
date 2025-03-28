@@ -1,0 +1,29 @@
+dataset_name: "scannetpp"
+mapping:
+  alpha_thre: 0.6
+  current_view_opt_iterations: 0.4
+  iterations: 500
+  map_every: 5
+  new_frame_sample_size: 100000
+  new_points_radius: 1.0e-08
+  new_submap_every: 1000
+  new_submap_gradient_points_num: 50000
+  new_submap_iterations: 500
+  new_submap_points_num: 400000
+  pruning_thre: 0.5
+  submap_using_motion_heuristic: false
+tracking:
+  alpha_thre: 0.98
+  cam_rot_lr: 0.002
+  cam_trans_lr: 0.01
+  filter_alpha: true
+  filter_outlier_depth: true
+  gt_camera: true
+  help_camera_initialization: true
+  init_err_ratio: 50
+  iterations: 300
+  mask_invalid_depth: true
+  odometer_method: point_to_plane
+  odometry_type: odometer
+  soft_alpha: false
+  w_color_loss: 0.5

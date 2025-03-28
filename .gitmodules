@@ -1,0 +1,3 @@
+[submodule "thirdParty/segment-anything-2"]
+	path = thirdParty/segment-anything-2
+	url = https://github.com/facebookresearch/sam2.git
