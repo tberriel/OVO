@@ -3,7 +3,7 @@ import torch
 import yaml
 import os
 
-from ..utils import clip_utils, io_utils
+from ..utils import clip_utils
 from .clips_merging import WeightsPredictorMerger
 
 class CLIPGenerator:
@@ -30,7 +30,7 @@ class CLIPGenerator:
             self.clips_fusion = lambda clip_g, clip_seg, clip_bbox: clip_utils.fuse_clips(clip_g, clip_seg, clip_bbox, self.embed_type, w_masked, w_global)
 
         self.model_card = config.get("model_card", "SigLIP-384")
-        self.model, self.tokenizer, self.preprocess, clip_dim = io_utils.load_clip_model(self.model_card, config.get("use_half", False))
+        self.model, self.tokenizer, self.preprocess, clip_dim = clip_utils.load_clip_model(self.model_card, config.get("use_half", False))
         self.clip_dim=clip_dim        
         
         if self.model_card[:6] == "SigLIP":

@@ -4,8 +4,7 @@ import torch
 import tqdm
 import os
 
-from ..utils import segment_utils 
-from ..utils import io_utils
+from ..utils import segment_utils
 
 class MaskGenerator:
     """ Initialize SAM backbone, with a given configuration.
@@ -42,7 +41,7 @@ class MaskGenerator:
                 torch.backends.cudnn.allow_tf32 = True
                 self.dtype = torch.bfloat16
             print("Loading SAM{}".format(sam_version))
-            self.mask_generator = io_utils.load_sam(config, device = self.device)
+            self.mask_generator = segment_utils.load_sam(config, device = self.device)
 
             with torch.no_grad() and torch.autocast(device_type=self.device, dtype=self.dtype):
                 self.mask_generator.generate(np.random.rand(512,512,3).astype(np.float32)) #First pass for compilation

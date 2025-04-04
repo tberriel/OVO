@@ -1,9 +1,12 @@
+from __future__ import annotations
+from typing import Dict, Any, Tuple, List
+
 import torchvision.transforms.functional as F
-from typing import Tuple, List
 from copy import deepcopy
 import numpy as np
 import heapq
 import torch
+import os
 
 
 def mask2segmap(masks: np.ndarray, image: np.ndarray, sort: bool = True) -> Tuple[np.ndarray, np.ndarray] :
@@ -261,3 +264,46 @@ def box_xyxy_to_xywh(box_xyxy: torch.Tensor) -> torch.Tensor:
     box_xywh[2] = box_xywh[2] - box_xywh[0]
     box_xywh[3] = box_xywh[3] - box_xywh[1]
     return box_xywh
+
+
+def load_sam(config: Dict[str, Any], device: str = "cuda") -> SamAutomaticMaskGenerator:
+    """ Load SAM or SAM2 model
+    """
+    sam_version = config.get("sam_version","2.1")
+
+    model_cards = {"vit_b": "vit_b_01ec64.pth", "vit_h": "vit_h_4b8939.pth", "hiera_l": "hiera_large.pt", "hiera_t": "hiera_tiny.pt"}
+    sam_encoder = config.get("sam_encoder","hiera_l")
+    checkpoint_path =  os.path.join(config["sam_ckpt_path"],f"sam{sam_version}_{model_cards[sam_encoder]}") 
+            
+    if sam_version == "":
+        from segment_anything import SamAutomaticMaskGenerator, sam_model_registry
+
+        sam = sam_model_registry[sam_encoder](checkpoint=checkpoint_path).to(device).eval()
+        sam_config = {
+            "points_per_side": config.get("points_per_side",32),
+            "pred_iou_thresh": config.get("nms_iou_th",0.8),
+            "stability_score_thresh": config.get("stability_score_th",0.85),
+            "min_mask_region_area": config.get("min_mask_region_area", 100),
+        }
+    else:
+        torch.backends.cuda.matmul.allow_tf32 = True
+        torch.backends.cudnn.allow_tf32 = True
+        from sam2.build_sam import build_sam2
+        from sam2.automatic_mask_generator import SAM2AutomaticMaskGenerator as SamAutomaticMaskGenerator
+
+        model_cfg = os.path.join("configs",f"sam{sam_version}",f"sam{sam_version}_{sam_encoder}.yaml")
+        sam = build_sam2(model_cfg, checkpoint_path, device=device, mode="eval", apply_postprocessing=False)
+        sam_config = {
+        "points_per_side":config.get("points_per_side",32),
+        "pred_iou_thresh": config.get("nms_iou_th",0.8),
+        "stability_score_thresh": config.get("stability_score_th",0.95),
+        "min_mask_region_area": config.get("min_mask_region_area", 0),
+        "use_m2m": config.get("use_m2m", False),
+        }
+        
+
+    mask_generator = SamAutomaticMaskGenerator(
+        model=sam,
+        **sam_config
+    )
+    return mask_generator

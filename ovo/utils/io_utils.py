@@ -1,10 +1,7 @@
-from __future__ import annotations
 from typing import Dict, Any, Tuple, Union
-from torchvision.transforms import Resize, Normalize, CenterCrop, Compose
 from pathlib import Path
 import open3d as o3d
 import numpy as np
-import open_clip
 import plyfile
 import torch
 import math
@@ -238,80 +235,3 @@ def save_dict_to_yaml(dictionary: Dict[str, Any], file_name: str, *, directory: 
     """
     with open(directory / file_name, "w") as f:
         yaml.dump(dictionary, f)
-
-
-
-def load_sam(config: Dict[str, Any], device: str = "cuda") -> SamAutomaticMaskGenerator:
-    """ Load SAM or SAM2 model
-    """
-    sam_version = config.get("sam_version","2.1")
-
-    model_cards = {"vit_b": "vit_b_01ec64.pth", "vit_h": "vit_h_4b8939.pth", "hiera_l": "hiera_large.pt", "hiera_t": "hiera_tiny.pt"}
-    sam_encoder = config.get("sam_encoder","hiera_l")
-    checkpoint_path =  os.path.join(config["sam_ckpt_path"],f"sam{sam_version}_{model_cards[sam_encoder]}") 
-            
-    if sam_version == "":
-        from segment_anything import SamAutomaticMaskGenerator, sam_model_registry
-
-        sam = sam_model_registry[sam_encoder](checkpoint=checkpoint_path).to(device).eval()
-        sam_config = {
-            "points_per_side": config.get("points_per_side",32),
-            "pred_iou_thresh": config.get("nms_iou_th",0.8),
-            "stability_score_thresh": config.get("stability_score_th",0.85),
-            "min_mask_region_area": config.get("min_mask_region_area", 100),
-        }
-    else:
-        torch.backends.cuda.matmul.allow_tf32 = True
-        torch.backends.cudnn.allow_tf32 = True
-        from sam2.build_sam import build_sam2
-        from sam2.automatic_mask_generator import SAM2AutomaticMaskGenerator as SamAutomaticMaskGenerator
-
-        model_cfg = os.path.join("configs",f"sam{sam_version}",f"sam{sam_version}_{sam_encoder}.yaml")
-        sam = build_sam2(model_cfg, checkpoint_path, device=device, mode="eval", apply_postprocessing=False)
-        sam_config = {
-        "points_per_side":config.get("points_per_side",32),
-        "pred_iou_thresh": config.get("nms_iou_th",0.8),
-        "stability_score_thresh": config.get("stability_score_th",0.95),
-        "min_mask_region_area": config.get("min_mask_region_area", 0),
-        "use_m2m": config.get("use_m2m", False),
-        }
-        
-
-    mask_generator = SamAutomaticMaskGenerator(
-        model=sam,
-        **sam_config
-    )
-    return mask_generator
-
-
-def load_clip_model(model_card: str, use_half: bool) -> Tuple[Any, Any, Compose, str]:
-
-    cards = {
-        "SigLIP": 'hf-hub:timm/ViT-SO400M-14-SigLIP',#224x224
-        "SigLIP-384": 'hf-hub:timm/ViT-SO400M-14-SigLIP-384',#384x384
-        "ViT-H-14": 'hf-hub:laion/CLIP-ViT-H-14-laion2B-s32B-b79K',#224x224
-        "ViT-B-16-qg": 'hf-hub:apple/DFN2B-CLIP-ViT-B-16',#224x224
-        "ViT-L-14-qg": 'hf-hub:apple/DFN2B-CLIP-ViT-L-14-39B',#224x224
-        "ViT-H-14-qg": 'hf-hub:apple/DFN5B-CLIP-ViT-H-14', #224x224
-        "ViT-H-14-378qg": 'hf-hub:apple/DFN5B-CLIP-ViT-H-14-378'#384x384
-    }
-    clip_dim_cards = {
-        "SigLIP": 1152,
-        "SigLIP-384": 1152,
-        "ViT-H-14": 1024,
-        "ViT-B-16-qg": 512,
-        "ViT-L-14-qg": 768,
-        "ViT-H-14-qg": 1024, 
-        "ViT-H-14-378qg": 124
-    }
-    assert model_card in list(cards.keys()), f"Select one of {cards.keys()} model cards"
-    model, preprocess = open_clip.create_model_from_pretrained(
-        cards[model_card],
-        precision="fp32" if not use_half else "fp16")
-    
-    tokenizer = open_clip.get_tokenizer(cards[model_card])
-
-    tf_to_keep = [tf for tf in preprocess.transforms if isinstance(tf, Resize) or isinstance(tf,CenterCrop) or isinstance(tf, Normalize)]
-    preprocess = Compose(tf_to_keep)
-
-    return model.eval(), tokenizer, preprocess, clip_dim_cards[model_card]
