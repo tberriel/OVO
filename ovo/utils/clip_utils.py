@@ -44,6 +44,7 @@ def load_clip_model(model_card: str, use_half: bool) -> Tuple[Any, Any, Compose,
     cards = {
         "SigLIP": 'hf-hub:timm/ViT-SO400M-14-SigLIP',#224x224
         "SigLIP-384": 'hf-hub:timm/ViT-SO400M-14-SigLIP-384',#384x384
+        "SigLIP2-384": 'hf-hub:timm/ViT-SO400M-16-SigLIP2-384',#384x384
         "ViT-H-14": 'hf-hub:laion/CLIP-ViT-H-14-laion2B-s32B-b79K',#224x224
         "ViT-B-16-qg": 'hf-hub:apple/DFN2B-CLIP-ViT-B-16',#224x224
         "ViT-L-14-qg": 'hf-hub:apple/DFN2B-CLIP-ViT-L-14-39B',#224x224
@@ -53,6 +54,7 @@ def load_clip_model(model_card: str, use_half: bool) -> Tuple[Any, Any, Compose,
     clip_dim_cards = {
         "SigLIP": 1152,
         "SigLIP-384": 1152,
+        "SigLIP2-384": 1152,
         "ViT-H-14": 1024,
         "ViT-B-16-qg": 512,
         "ViT-L-14-qg": 768,

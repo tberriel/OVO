@@ -25,7 +25,7 @@ conda activate ovo
 
 conda install pyyaml tqdm psutil wandb plyfile numpy=1.26.4 matplotlib seaborn opencv imageio scipy scikit-learn pandas -c conda-forge
 # torch
-pip install torch==2.5.1 torchvision==0.20.1 transformers==4.42.4 open_clip_torch==2.24.0 open3d==0.19.0
+pip install torch==2.5.1 torchvision==0.20.1 transformers==4.51.0 open_clip_torch==2.32.0 open3d==0.19.0 huggingface-hub==0.30.1
 
 #sam2
 cd /<ovo_path>/thirdParty/segment-anything-2
