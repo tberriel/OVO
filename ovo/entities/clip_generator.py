@@ -172,7 +172,7 @@ class CLIPGenerator:
 
         for j in range(n_queries):
             # Compute the text embedding of each query individually to make them independent from other queries
-            embed = self.get_txt_embedding(queries[j]).mean(0, keepdim=True)
+            embed = self.get_txt_embedding(queries[j]).mean(0, keepdim=True).float() 
             txt_embeds[j] = torch.nn.functional.normalize(embed, p=2, dim=-1)
 
         sim_map = self.get_similarity(txt_embeds, ins_descriptors, *self.similarity_args)
