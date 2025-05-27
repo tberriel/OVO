@@ -345,8 +345,8 @@ class OVO:
         """Profiled call to self.mask_generator.get_seg_img
 
         Args:
-            - binary_maps (np.ndarray): A numpy array of (N, H, W) containing N binary maps.
-            - image (np.ndarray): A numpy array of shape (H, W, 3) representing the input image.
+            - binary_maps (tensor): A tensor of (N, H, W) containing N binary maps.
+            - image (tensor): A tensor of shape (H, W, 3) representing the input image.
 
         Returns:
             - seg_images (torch.Tensor): Segmented images with shape (N, 3, h, w), if self.config["clip"]["embed_type"] == "vanilla" , else (N, 6, h, w) with h = w = self.config["sam"]["mask_res"].

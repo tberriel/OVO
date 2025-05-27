@@ -193,11 +193,11 @@ class MaskGenerator:
         For each binary map, compute the corresponding segmented image without background, reshaped at size self.mask_res. If self.multi_crop, a version with background is also computed and concatenated on the color dimension.
 
         Args:
-            - binary_maps (np.ndarray): A numpy array of (N, H, W) containing N binary maps.
-            - image (np.ndarray): A numpy array of shape (H, W, 3) representing the input image.
+            - binary_maps (tensor): A tensor of (N, H, W) containing N binary maps.
+            - image (tensor): A tensor of shape (3, H, W) representing the input image.
 
         Returns:
-            - seg_images (torch.Tensor): A numpy array containing the segmented images. Shape (N, 6, h, w), if self.multi_crop, ese (N, 3, h, w) with h = w = self.mask_res.
+            - seg_images (torch.Tensor): A tensor containing the segmented images. Shape (N, 6, h, w), if self.multi_crop, ese (N, 3, h, w) with h = w = self.mask_res.
         """
         return segment_utils.segmap2segimg(binary_maps, image, self.multi_crop, out_l=self.mask_res)
 
@@ -205,13 +205,13 @@ class MaskGenerator:
         """
         Loads precomputed segmentation images for a given frame ID. Given that seg_images are precomputed outside of OVO, these may need to be update after binary_maps fusion.
         Args:
-            - binary_maps (np.ndarray): A numpy array of (N, H, W) containing N binary maps.
-            - best_map_idxs (np.ndarray): A numpy array of (M) containing the indexes of the M binary maps that where used from this frame.
-            - changed_binary_maps (np.ndarray): A numpy array of (L) containing the L indexes of the binary maps that were updated.
-            - image (np.ndarray): A numpy array of shape (H, W, 3) representing the input image.
+            - binary_maps (tensor): A tensor of (N, H, W) containing N binary maps.
+            - best_map_idxs (tensor): A tensor of (M) containing the indexes of the M binary maps that where used from this frame.
+            - changed_binary_maps (tensor): A tensor of (L) containing the L indexes of the binary maps that were updated.
+            - image (tensor): A tensor of shape (H, W, 3) representing the input image.
             - frame_id (int): The ID of the frame for which to load the segmentation images (optional).
         Returns:
-            - seg_images (torch.Tensor): A numpy array containing the segmentation images loaded from the specified file.
+            - seg_images (torch.Tensor): A tensor containing the segmentation images loaded from the specified file.
         """
 
         seg_images = self._load_seg_imgs(frame_id)

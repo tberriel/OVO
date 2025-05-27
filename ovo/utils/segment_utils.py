@@ -136,7 +136,7 @@ def get_bbox_img(bbox: Tuple[int, int, int ,int], image: torch.Tensor, bbox_marg
     return bbox_img
 
 def pad_img(img: torch.Tensor) -> torch.Tensor:
-    h, w, c = img.shape
+    c, h, w = img.shape
     biggest_side = max(w,h)
     pad = torch.zeros((c, biggest_side, biggest_side), dtype=img.dtype, device = img.device)
     if h > w:

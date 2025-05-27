@@ -94,7 +94,7 @@ class CLIPGenerator:
     def encode_image(self, input: torch.Tensor) -> torch.Tensor:
         """ Compute CLIP descriptor of an RGB image
         Args:
-            - input (torch.Tensor): RGB image as tensor with shape (H,W,3) in range [0,1]
+            - input (torch.Tensor): RGB image as tensor with shape (3,H,W) in range [0,1]
         Return:
             - clip_descriptor (torch.Tensor): as tensor with shape (self.clip_dim)
         """
@@ -107,7 +107,7 @@ class CLIPGenerator:
     def extract_clip(self, image: torch.Tensor, seg_images: torch.Tensor, return_all: bool = False) -> torch.Tensor:
         """ Computes a CLIP vector for each mask of the segmented image.
         Args:
-            - image (torch.Tensor): Full source RGB image with dimensions (H,W,3) and range 0-1.
+            - image (torch.Tensor): Full source RGB image with dimensions (3,H,W) and range 0-1.
             - seg_images (torch.Tensor): array of shape (N,6,h,w), with h < H and w < W. The first 3 channels of the second dimension store the segment with black background of a 2D instance, while the last 3 channels store the image of the minimum bounding box arround that 2D semgent with background.
             - return_all: if True returns the three computed descriptors of each image in seg_images instead of merging them.
         Return:
