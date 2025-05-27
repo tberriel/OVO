@@ -6,7 +6,7 @@ import yaml
 
 from ovo.entities.visualizer import visualize_3d_points_obj_id_and_obb, visualize_gt_vs_pred, Visualizer   
 from ovo.utils.io_utils import load_config, load_scene_data, read_labels
-from .run_eval import load_representation
+from run_eval import load_representation
 
 def capitalize_first(text):
   return text[0].upper() + text[1:]
@@ -15,7 +15,8 @@ def main(args):
     run_path = Path(args.working_dir) / args.run_path
     config = load_config(run_path/"config.yaml")
 
-    semantic_module, params, pcd_pred = load_representation(run_path, eval=True)
+    semantic_module, params = load_representation(run_path, eval=True)
+    pcd_pred = params["xyz"]
     obj_ids = params["obj_ids"]
 
     dataset_name = capitalize_first(config["dataset_name"])
@@ -68,7 +69,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='Arguments to train and evaluate over a dataset')
     parser.add_argument('run_path', type=str)
-    parser.add_argument('--working_dir', default="/home/tberriel/Workspaces/semsplat_ws/sem3d", type=str)
+    parser.add_argument('--working_dir', default="/home/tberriel/Workspaces/semsplat_ws/OVO/", type=str)
     parser.add_argument('--visualize_obj', action='store_true')
     parser.add_argument('--visualize_interactive_query', action='store_true')
     parser.add_argument('--visualize_gt_vs_pre', action='store_true')
