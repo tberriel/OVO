@@ -95,6 +95,8 @@ def get_pcd_colors(obj_ids, cmap):
 
 def get_obj_ids_and_masks(obj_ids):
     ids = np.unique(obj_ids)
+    if not (ids>=0).any():
+        return np.array([]), np.array([])
     while ids[0]<0:
         ids = ids[1:]
     masks = np.repeat(obj_ids[:,None], len(ids), axis=-1) == ids[None,:]
