@@ -261,9 +261,9 @@ class OVO:
                     self.objects[map_ins_id] = Instance3D(map_ins_id, kf_id=kf_id, points_ids=unassigned_points_ids, mask_area=mask_area)
                     matched_ins_info[map_ins_id]=[(map_idx, mask_area)]
 
-            if map_ins_id > -1:
-                # Assignto matched unassigned points (id==-1) new instance id 
-                points_ins_ids[map_points[~assigned_mask]] = map_ins_id
+                if map_ins_id > -1:
+                    # Assignto matched unassigned points (id==-1) new instance id 
+                    points_ins_ids[map_points[~assigned_mask]] = map_ins_id
         
         return points_ins_ids, matched_ins_info
 
