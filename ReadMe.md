@@ -44,7 +44,23 @@ conda install cuda-toolkit=12.1 -c nvidia/label/cuda-12.1.0
 pip install git+https://github.com/VladimirYugay/simple-knn.git@c7e51a06a4cd84c25e769fee29ab391fe5d5ff8d git+https://github.com/VladimirYugay/gaussian_rasterizer.git@9c40173fcc8d9b16778a1a8040295bc2f9
 ```
 ### ORB-SLAM2 (Optional)
-Follow <a href="https://github.com/MisEty/RTG-SLAM?tab=readme-ov-file#13-modified-orb-slam2-python-binding" >RTG-SLAM instructions</a> to install ORB-SLAM2 and python bindings. Adapth the python bindings to work with Python 3.10.
+Clone the repository:
+```
+cd thirdParty/
+git clone https://github.com/tberriel/ORB_SLAM2
+cd ORB_SLAM2
+```
+Manually install ORB-SLAM2 dependencies into the conda environment:
+```
+conda activate ovo
+# Instal conda C compilers to avoid relying on system defaults
+conda install cxx-compiler -c conda-forge # generic version hardware agnostic
+# Install OpenGL
+conda install libegl libegl-devel libgl libgl-devel libgles libgles-devel libglvnd libglvnd-devel libglx libglx-devel libopengl libopengl-devel -c conda-forge
+# Install Eigen, Pangolin, OpenCV, Numpy
+conda install glew eigen=3.4 pangolin-opengl=0.9.2 libopencv=4.11 numpy=1.26.4 boost -c conda-forge 
+```
+And finally run the script `build.sh` to build the *ORB-SLAM2* and the python bindings.
 
 ## Data
 See <a href="./data/input/ReadMe.md">data instructions</a>.
