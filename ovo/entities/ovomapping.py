@@ -133,7 +133,10 @@ class OVOSemMap():
                             scene_data = [frame_id, image, frame_data[2], rgb_depth_ratio]
 
                             map_data = self.slam_backbone.get_map()
-                            self.ovo.detect_and_track_objects(scene_data, map_data, estimated_c2w)
+                            updated_ponts_ins_ids = self.ovo.detect_and_track_objects(scene_data, map_data, estimated_c2w)
+                            if updated_ponts_ins_ids is not None:
+                               self.slam_backbone.update_pcd_obj_ids(updated_ponts_ins_ids)
+
                             self.ovo.compute_semantic_info()
                             self.logger.log_memory_usage(frame_id)
 
@@ -176,9 +179,8 @@ class OVOSemMap():
 
         self.save_representation()
 
-        del self.slam_backbone
         self.ovo.cpu()
-        del self.ovo
+        del self.slam_backbone, self.ovo
         torch.cuda.empty_cache()
 
         if self.config["vis"].get("stream", False):

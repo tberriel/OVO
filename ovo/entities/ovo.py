@@ -129,7 +129,7 @@ class OVO:
             return None
 
         last_id = self.next_ins_id
-        matched_ins_ids, binary_maps, n_matched_points = self._match_and_track_instances(frame_data[1:], map_data, c2w, seg_maps, binary_maps)
+        matched_ins_ids, binary_maps, n_matched_points, updated_ponts_ins_ids = self._match_and_track_instances(frame_data[1:], map_data, c2w, seg_maps, binary_maps)
             
         # Save keyframe information
         self.keyframes_queue.append([matched_ins_ids, binary_maps, image, self.kf_id])
@@ -148,6 +148,8 @@ class OVO:
                 print_output=True
                 )
             self._time_cache = []
+
+        return updated_ponts_ins_ids
     
     @profil
     def _get_masks(self, image: np.ndarray, frame_id: int):
@@ -209,7 +211,8 @@ class OVO:
         frustum_points_ins_ids, matched_ins_info = self._track_objects(frustum_points_ids, frustum_points_ins_ids, matched_points_idxs, matched_seg_idxs, seg_map, self.config["track_th"], kf_id)
         matched_ins_ids, binary_maps = self._fuse_masks_with_same_ins_id(binary_maps, matched_ins_info, kf_id)
 
-        points_ins_ids[frustum_mask] = frustum_points_ins_ids # Updates points_ins_ids
+        updated_ponts_ins_ids = points_ins_ids.clone()
+        updated_ponts_ins_ids[frustum_mask] = frustum_points_ins_ids # Updates points_ins_ids
 
         if self.config.get("debug_info", False):
             ins_maps = torch.ones(image.shape[:2], dtype=torch.int, device=self.device)*-1
@@ -218,7 +221,7 @@ class OVO:
                     ins_maps[binary_maps[map_idx]] = ins_id
             self.keyframes["ins_maps"].append(ins_maps.cpu().numpy())
 
-        return matched_ins_ids, binary_maps, len(matched_points_idxs)
+        return matched_ins_ids, binary_maps, len(matched_points_idxs), updated_ponts_ins_ids
             
     def _track_objects(self, points_ids: torch.Tensor, points_ins_ids: torch.Tensor, matched_points_idxs: torch.Tensor, matched_seg_idxs: torch.Tensor, seg_map: torch.Tensor, track_th: float, kf_id: int) -> tuple[torch.Tensor, Dict[int, List[Tuple[int, int]]]]:
         """  We project 3D points and match with segmentation maps. Then we assign to each segmentation map the id of the 3D instance associated with the majority of points projected into it. If the set points don't have an object assigned, a new object is created and assigned to them. Points without an object assigned get assigned the segmentation map's instance.
