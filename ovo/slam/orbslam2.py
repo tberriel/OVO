@@ -26,7 +26,7 @@ class WrapperORBSLAM2(VanillaMapper):
         config_path = os.path.join(config["slam"]["config_path"], "orbslam2", config["dataset_name"]+".yaml")
         self.orbslam2 = orbslam2.System(vocab_path, config_path, orbslam2.Sensor.RGBD)
         self.orbslam2.set_use_viewer(config["slam"].get("use_viewer",False))
-        self.orbslam2.initialize(False)
+        self.orbslam2.initialize()
 
     def track_camera(self, frame_data: List[Any]) -> None:
         frame_id, rgb_image, depth_image = frame_data[:3]
