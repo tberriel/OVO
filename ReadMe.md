@@ -49,6 +49,7 @@ Clone the repository:
 cd thirdParty/
 git clone https://github.com/tberriel/ORB_SLAM2
 cd ORB_SLAM2
+git checkout ovo-mapping
 ```
 Manually install ORB-SLAM2 dependencies into the conda environment:
 ```
