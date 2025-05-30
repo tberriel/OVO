@@ -112,7 +112,7 @@ class OVOSemMap():
                     self.slam_backbone.track_camera(frame_data)
 
                     estimated_c2w = self.slam_backbone.get_c2w(frame_id)
-                    if estimated_c2w is None:
+                    if estimated_c2w is None or not (frame_data[2]>0).any():
                         continue
 
                     if frame_id % self.map_every == 0:

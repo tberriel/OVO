@@ -42,9 +42,8 @@ class VanillaMapper():
         self.estimated_c2ws[frame_id] = torch.from_numpy(c2w).to(self.device)
 
     def map(self, frame_data: List[Any], c2w: torch.Tensor) -> None:
-        print("\nMapping frame ", frame_data[0])
         # unproject depth
-        _, image, depth, pose = frame_data[:4]
+        image, depth, pose = frame_data[1:4]
         # load depth camera intrinsics
         h = image.shape[0]
         w = image.shape[1]

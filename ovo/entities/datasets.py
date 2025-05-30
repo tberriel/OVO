@@ -86,6 +86,7 @@ class ScanNet(BaseDataset):
         self.depth_paths = sorted(list(
             (self.dataset_path / "depth").glob("*.png")), key=lambda x: int(os.path.basename(x)[:-4]))
         self.load_poses(self.dataset_path / "pose")
+        self.depth_th = dataset_config.get("depth_th")
 
     def load_poses(self, path):
         self.poses = []
@@ -111,6 +112,8 @@ class ScanNet(BaseDataset):
         depth_data = cv2.imread(
             str(self.depth_paths[index]), cv2.IMREAD_UNCHANGED)
         depth_data = depth_data.astype(np.float32) / self.depth_scale
+        if self.depth_th is not None:
+            depth_data[depth_data > self.depth_th] = 0
         edge = self.crop_edge
         if edge > 0:
             #color_data = color_data[edge:-edge, edge:-edge]
