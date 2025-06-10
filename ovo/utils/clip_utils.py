@@ -33,6 +33,11 @@ def fuse_clips(clip_g:torch.Tensor, clip_seg:torch.Tensor, clip_bbox:torch.Tenso
 
         w_global =  (cos(clip_g, clip_l)*w_global).unsqueeze(-1)# start with 0.18
         clip_embed = torch.nn.functional.normalize(clip_g*w_global + clip_l*(1-w_global), p=2, dim=-1)
+    elif embed_type == "concept_fusion":
+
+        similarity_scores = cos(clip_g, clip_bbox)
+        w_global = torch.nn.functional.softmax(similarity_scores, dim=0).unsqueeze(-1)
+        clip_embed = torch.nn.functional.normalize(w_global*clip_g + (1-w_global) * clip_bbox, p=2, dim=-1)
     else:
         # vanilla
         clip_embed = clip_seg
