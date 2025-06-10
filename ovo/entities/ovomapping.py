@@ -61,7 +61,7 @@ class OVOSemMap():
         self.ovo = OVO(config["semantic"], self.logger, config["data"]["scene_name"], cam_intrinsics, device=self.device)
 
         if config["semantic"]["sam"].get("precomputed", False) or config["semantic"]["sam"].get("precompute", False):
-            self.ovo.masks_generator.precompute(self.dataset, self.segment_every)
+            self.ovo.mask_generator.precompute(self.dataset, self.segment_every)
 
     def _setup_output_path(self, output_path: str) -> None:
         """ Sets up the output path for saving results based on the provided configuration. 
@@ -112,7 +112,8 @@ class OVOSemMap():
                     self.slam_backbone.track_camera(frame_data)
 
                     estimated_c2w = self.slam_backbone.get_c2w(frame_id)
-                    if estimated_c2w is None or not (frame_data[2]>0).any():
+                    missing_depth = not (frame_data[2]>0).any()
+                    if estimated_c2w is None or missing_depth :
                         continue
 
                     if frame_id % self.map_every == 0:
@@ -133,16 +134,19 @@ class OVOSemMap():
                             scene_data = [frame_id, image, frame_data[2], rgb_depth_ratio]
 
                             map_data = self.slam_backbone.get_map()
-                            updated_ponts_ins_ids = self.ovo.detect_and_track_objects(scene_data, map_data, estimated_c2w)
-                            if updated_ponts_ins_ids is not None:
-                               self.slam_backbone.update_pcd_obj_ids(updated_ponts_ins_ids)
+                            updated_points_ins_ids = self.ovo.detect_and_track_objects(scene_data, map_data, estimated_c2w)
+                            if updated_points_ins_ids is not None:
+                               self.slam_backbone.update_pcd_obj_ids(updated_points_ins_ids)
 
                             self.ovo.compute_semantic_info()
                             self.logger.log_memory_usage(frame_id)
 
                         if stream:
                             pcd, _, pcd_obj_ids = self.slam_backbone.get_map()
-                            c2w = self.slam_backbone.get_c2w(frame_id).cpu().numpy().astype(np.float16)
+                            c2w = self.slam_backbone.get_c2w(frame_id)
+                            if c2w is None:
+                                continue
+                            c2w = c2w.cpu().numpy().astype(np.float16)
                             colors = self.slam_backbone.get_pcd_colors()
 
                             mpqueue.put([pcd.cpu().numpy().astype(np.float16), pcd_obj_ids.cpu().numpy().astype(np.int16), colors, c2w])
