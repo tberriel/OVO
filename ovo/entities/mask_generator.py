@@ -33,19 +33,22 @@ class MaskGenerator:
             print(" {} path already exists, skipping masks precompute! To recompute masks delete old masks!".format(self.masks_path))
             self.mask_generator = None
         else:
-            sam_version = config.get("sam_version", "")
-            if sam_version == "":
-                self.dtype = torch.float32
-            else:
-                torch.backends.cuda.matmul.allow_tf32 = True
-                torch.backends.cudnn.allow_tf32 = True
-                self.dtype = torch.bfloat16
-            print("Loading SAM{}".format(sam_version))
-            self.mask_generator = segment_utils.load_sam(config, device = self.device)
+            self.load_mask_generator(self.config)
 
-            with torch.no_grad() and torch.autocast(device_type=self.device, dtype=self.dtype):
-                self.mask_generator.generate(np.random.rand(512,512,3).astype(np.float32)) #First pass for compilation
-            
+    def load_mask_generator(self, config: Dict[str, Any]) -> None:
+        sam_version = config.get("sam_version", "")
+        if sam_version == "":
+            self.dtype = torch.float32
+        else:
+            torch.backends.cuda.matmul.allow_tf32 = True
+            torch.backends.cudnn.allow_tf32 = True
+            self.dtype = torch.bfloat16
+        print("Loading SAM{}".format(sam_version))
+        self.mask_generator = segment_utils.load_sam(config, device = self.device)
+
+        with torch.no_grad() and torch.autocast(device_type=self.device, dtype=self.dtype):
+            self.mask_generator.generate(np.random.rand(512,512,3).astype(np.float32)) #First pass for compilation
+
     def to(self, device: str) -> None:
         """
         Move predictor model to specified device.
@@ -138,7 +141,7 @@ class MaskGenerator:
                 print(f"Frame {frame_id} already compute. Skipping ...") 
             else:
                 if self.mask_generator is None:
-                    self.mask_generator = segment_utils.load_sam(self.config)
+                    self.load_mask_generator(self.config)
                 seg_maps, binary_maps = self.segment(dataset[frame_id][1])
                 self._save_masks(seg_maps, binary_maps, frame_id)
 
