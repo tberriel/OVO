@@ -15,6 +15,8 @@ class WrapperGaussianSLAM():
         self.device = config.get("device", "cuda")
         assert self.device == "cuda", "Gaussian SLAM does not support CPU only execution!"
         self.config = config
+        self.map_updated = False
+        self.close_loops = False
         
         self.dataset = dataset
         self.estimated_c2ws = torch.zeros((len(self.dataset), 4, 4), device=self.device, dtype=torch.float32)

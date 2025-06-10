@@ -14,7 +14,9 @@ class VanillaMapper():
 
         self.match_distance_th = 0.03 # 3 cm
         self.max_id = 0
-        self.estimated_c2ws = dict()     
+        self.estimated_c2ws = dict()  
+        self.kfs = {}   
+        self.map_updated = False
 
         self.pcd = torch.empty((0,3), device = self.device)
         self.pcd_ids = torch.empty((0,1), device = self.device,dtype=torch.int32 )
@@ -96,6 +98,9 @@ class VanillaMapper():
     def get_map(self) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """Returns a reference to map tensors."""
         return self.pcd, self.pcd_ids, self.pcd_obj_ids.squeeze()
+    
+    def get_kfs(self) -> Dict[int, Dict[str, Any]]:
+        return self.kfs
 
     def get_map_dict(self) -> Dict[str, Any]:
         return {

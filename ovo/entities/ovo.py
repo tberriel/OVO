@@ -5,7 +5,7 @@ import pprint
 import torch
 import time
 
-from ..utils import geometry_utils
+from ..utils import geometry_utils, instance_utils
 from .clip_generator import CLIPGenerator
 from .mask_generator import MaskGenerator
 from .instance3d import Instance3D
@@ -351,7 +351,50 @@ class OVO:
                     print_output=True
                     )
                 self._time_cache = []
+    
+    def update_map(self, map_data, kfs):
+        # 0. clean the queue
+        self.complete_semantic_info()
+        points_3d, points_ids, points_ins_ids = map_data
+        # 1. remove 3D instances that are not in pcd_obj_ids, despite some instances having been detected with > than 100 points, the deletion of Keyframes, can reduce their support to 1 or 2 points. TODO: We should 1) recompute the support of this instances by projecting the full pcd into them or 2) just remove them.
+        objects_list = []
+        objects_to_del = []
+        map_ins_ids = points_ins_ids.unique()
+        for ins_id in self.objects.keys():
+            if ins_id in map_ins_ids:
+                objects_list.append(self.objects[ins_id])
+            else:
+                objects_to_del.append(self.objects[ins_id])
+        # 2. Fuse 3D instances that fulfill a condition. 
+        # TODO: optimize brute-force approach (compare all instances to each-other)
+        objects = {}
+        fused_objects = {}
+        for i, instance1 in enumerate(objects_list):
+            if instance1.id in fused_objects:
+                continue
+            for instance2 in objects_list[i+1:]:
+                if instance2.id in fused_objects:
+                    continue
+                elif instance_utils.same_instance(instance1, instance2, map_data):
+                    instance1, points_ins_ids = instance_utils.fuse_instances(instance1, instance2, map_data)
+                    fused_objects[instance2.id] = instance1.id
+            objects[instance1.id] = instance1
+        print(f"Semantic Map update: removed {len(objects_to_del)}, fused {len(fused_objects)} instances")
+        # 3. Updated saved info
+        for id2, id1 in fused_objects.items():
+            for kf in self.objects[id2].kfs_ids:
+                if id2 not in self.keyframes["ins_descriptors"][kf]:
+                    continue
+                # If both ins were observed in the same frame, the ins_maps should be fused and descriptors recomputed. Neverthless, it is not probable that two instances seen in the same kf will fulfill the distance threshold
+                ins_descriptor2  = self.keyframes["ins_descriptors"][kf].pop(id2)
+                if id1 not in self.keyframes["ins_descriptors"][kf] or True:
+                    self.keyframes["ins_descriptors"][kf][id1] = ins_descriptor2
                 
+        self.objects = objects
+        # 4. Update object descriptors
+        self.update_objects_clip()
+        return  points_ins_ids 
+
     @profil
     def _get_seg_image(self, image: torch.Tensor, binary_maps: torch.Tensor) -> torch.Tensor:
         """Profiled call to self.mask_generator.get_seg_img
@@ -458,6 +501,9 @@ class OVO:
         for j, obj in enumerate(self.objects.values()):
             if obj.clip_feature is not None:
                 object_clips[j] = obj.clip_feature.to(self.device)
+            else:
+                # This should never happen
+                object_clips[j].update_clip(self.keyframes["ins_descriptors"])
         return object_clips    
 
     def capture_dict(self, debug_info: bool) -> Dict[str, Any]:

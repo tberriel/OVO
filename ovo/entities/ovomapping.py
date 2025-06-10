@@ -116,8 +116,15 @@ class OVOSemMap():
                     if estimated_c2w is None or missing_depth :
                         continue
 
-                    if frame_id % self.map_every == 0:
+                    if frame_id % self.map_every == 0 or self.config["slam"]["slam_module"] == "orbslam2":
                         self.slam_backbone.map(frame_data, estimated_c2w)
+                        if self.slam_backbone.map_updated:
+                            map_data = self.slam_backbone.get_map()
+                            kfs = self.slam_backbone.get_kfs()
+                            updated_points_ins_ids = self.ovo.update_map(map_data, kfs)
+                            if updated_points_ins_ids is not None:
+                               self.slam_backbone.update_pcd_obj_ids(updated_points_ins_ids)
+                            self.slam_backbone.map_updated = False
 
                     if frame_id % self.segment_every == 0:
                         with torch.no_grad() and torch.autocast(device_type=self.device, dtype=torch.bfloat16):
