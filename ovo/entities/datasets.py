@@ -86,7 +86,11 @@ class ScanNet(BaseDataset):
         self.depth_paths = sorted(list(
             (self.dataset_path / "depth").glob("*.png")), key=lambda x: int(os.path.basename(x)[:-4]))
         self.load_poses(self.dataset_path / "pose")
-        self.depth_th = dataset_config.get("depth_th")
+        depth_th = dataset_config.get("depth_th",0)
+        if depth_th >0:
+            self.depth_th = depth_th
+        else:
+            self.depth_th = None
 
     def load_poses(self, path):
         self.poses = []
@@ -116,7 +120,6 @@ class ScanNet(BaseDataset):
             depth_data[depth_data > self.depth_th] = 0
         edge = self.crop_edge
         if edge > 0:
-            #color_data = color_data[edge:-edge, edge:-edge]
             lr_color_data = lr_color_data[edge:-edge, edge:-edge]
             depth_data = depth_data[edge:-edge, edge:-edge]
         # Interpolate depth values for splatting
