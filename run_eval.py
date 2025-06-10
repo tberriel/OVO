@@ -4,6 +4,7 @@ from pathlib import Path
 import argparse
 import wandb
 import torch
+import numpy as np
 import time
 import yaml
 import uuid
@@ -47,7 +48,9 @@ def compute_scene_labels(scene_path: Path, dataset_name: str, scene_name: str, d
     mesh_semantic_labels = dict()
     print("Matching instances to ground truth mesh ...")
     mesh_instance_labels, mesh_instances_masks, matched_instances_ids = eval_utils.match_labels_to_vtx(points_obj_ids[:,0], pcd_pred, pcd_gt)
-    mesh_semantic_labels = instances_info["classes"][mesh_instance_labels]
+    
+    map_id_to_idx = {id: i for i, id in enumerate(ovo.objects.keys())}
+    mesh_semantic_labels = instances_info["classes"][np.vectorize(map_id_to_idx.get)(mesh_instance_labels)]
     instances_info["masks"] = mesh_instances_masks.int().numpy()
 
     """
