@@ -80,12 +80,13 @@ def run_scene(scene: str, dataset: str, experiment_name: str, tmp_run: bool = Fa
         
     config_slam = io_utils.load_config(os.path.join(config["slam"]["config_path"],  map_module, dataset.lower()+".yaml"))
     io_utils.update_recursive(config, config_slam)
+
+    config_dataset = io_utils.load_config(f"data/working/configs/{dataset}/{dataset.lower()}.yaml")
+    io_utils.update_recursive(config, config_dataset)
+    
     if os.path.exists(f"data/working/configs/{dataset}/{scene}.yaml"):
         config_scene = io_utils.load_config(f"data/working/configs/{dataset}/{scene}.yaml")
         io_utils.update_recursive(config, config_scene)
-    else:
-        config_dataset = io_utils.load_config(f"data/working/configs/{dataset}/{dataset.lower()}.yaml")
-        io_utils.update_recursive(config, config_dataset)
         
     if "data" not in config:
         config["data"] = {}
