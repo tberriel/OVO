@@ -4,4 +4,4 @@ mapping:
   k_pooling: 3
   downscale_ratio: 2
 tracking:
-  track_every: 5
+  track_every: 1

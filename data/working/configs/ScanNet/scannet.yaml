@@ -7,4 +7,5 @@ cam:
   cx: 318.905426
   cy: 242.683609
   depth_scale: 1000.
-  crop_edge: 16
+  depth_th: 4. # in m
+  crop_edge: 12

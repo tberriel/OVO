@@ -19,13 +19,11 @@ semantic:
   use_gt_clips: False
   match_distance_th: 0.05 #0.01
   track_th: 100
-  consecutive_kf_filter: False
   depth_filter: True
   log: True
   sam:
     precomputed: False
     multi_crop: True
-    mask_levels: 1  
     points_per_side: 16
     sam_ckpt_path: "data/input/sam_ckpts/"
     mask_res: 384
@@ -42,8 +40,6 @@ semantic:
     use_half: True
     embed_type: learned #fixed_weights # 
     model_card: SigLIP-384 #ViT-H-14 #
-    weights_predictor_path: data/input/weights_predictor/base #20241007_1101/
-    #clips_fusion_model: data/output/clips_fusion/m0_/20241111_1907/
-    #clips_fusion_model: data/output/clips_fusion/m0_/20241017_0904/
+    weights_predictor_path: data/input/weights_predictor/base
     k_top_views: 10
   kf_queue_delay: 10
