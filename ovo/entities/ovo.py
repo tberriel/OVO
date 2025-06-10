@@ -42,7 +42,7 @@ class OVO:
         self.keyframes = {
             "ins_descriptors": dict(),
             "frame_id": list(),
-            "obj_maps": list(),
+            "ins_maps": list(),
         }
         self.keyframes_queue = deque([])
         self.objects=dict()
@@ -216,8 +216,8 @@ class OVO:
 
         if self.config.get("debug_info", False):
             ins_maps = torch.ones(image.shape[:2], dtype=torch.int, device=self.device)*-1
-            for ins_id, matches in matched_ins_info.items():
-                for map_idx, _ in matches:
+            for ins_id, matches_info in matched_ins_info.items():
+                for map_idx, _ in matches_info:
                     ins_maps[binary_maps[map_idx]] = ins_id
             self.keyframes["ins_maps"].append(ins_maps.cpu().numpy())
 
@@ -280,6 +280,8 @@ class OVO:
 
         matched_ins_ids = []
         maps_idxs=[]
+        to_pop = []
+        i = 0
         for ins_id, data_list in matched_ins_info.items():
             map_idx = data_list[0][0]
             if len(data_list)>1:
@@ -295,6 +297,13 @@ class OVO:
             if self.n_top_views<=0 or self.objects[ins_id].is_top_kf(kf_id):
                 matched_ins_ids.append(ins_id)
                 maps_idxs.append(map_idx)
+                matched_ins_info[ins_id] = [(i, binary_maps[map_idx].sum().item())]
+                i+=1
+            else:
+                to_pop.append(ins_id)
+        for ins_id in to_pop:
+            matched_ins_info.pop(ins_id)
+
 
         binary_maps = binary_maps[maps_idxs]
 
