@@ -6,10 +6,10 @@
 
 # Camera calibration and distortion parameters (OpenCV) 
 
-Camera.fx: 577.590698
-Camera.fy: 578.729797
-Camera.cx: 306.905426
-Camera.cy: 230.683609
+Camera.fx: 574.540771
+Camera.fy: 577.583740
+Camera.cx: 298.522827
+Camera.cy: 214.558853
 Camera.width: 616
 Camera.height: 456
 
@@ -24,7 +24,7 @@ Camera.p2: 0.0
 #Camera.fps: 30.0
 
 # IR projector baseline times fx (aprox.)
-Camera.bf: 40
+Camera.bf: 40 #32.5
 
 # Color order of the images (0: BGR, 1: RGB. It is ignored if images are grayscale)
 Camera.RGB: 1
@@ -40,7 +40,7 @@ DepthMapFactor: 1.0
 #--------------------------------------------------------------------------------------------
 
 # ORB Extractor: Number of features per image
-ORBextractor.nFeatures: 8000
+ORBextractor.nFeatures: 4000
 
 # ORB Extractor: Scale factor between levels in the scale pyramid 	
 ORBextractor.scaleFactor: 1.2

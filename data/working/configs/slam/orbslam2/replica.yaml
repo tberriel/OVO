@@ -10,11 +10,6 @@ Camera.fy: 600.0
 Camera.cx: 599.5
 Camera.cy: 339.5
 
-#Camera.k1: 0.262383
-#Camera.k2: -0.953104
-#Camera.p1: -0.005358
-#Camera.p2: 0.002628
-#Camera.k3: 1.163314
 
 Camera.width: 1200
 Camera.height: 680
@@ -23,13 +18,13 @@ Camera.height: 680
 #Camera.fps: 30.0
 
 # IR projector baseline times fx (aprox.)
-Camera.bf: 40.0
+Camera.bf: 45
 
 # Color order of the images (0: BGR, 1: RGB. It is ignored if images are grayscale)
 Camera.RGB: 1
 
 # Close/Far threshold. Baseline times.
-ThDepth: 40.0
+ThDepth: 50
 
 # Deptmap values factor 
 DepthMapFactor: 1.0
@@ -45,7 +40,7 @@ ORBextractor.nFeatures: 1000
 ORBextractor.scaleFactor: 1.2
 
 # ORB Extractor: Number of levels in the scale pyramid	
-ORBextractor.nLevels: 8
+ORBextractor.nLevels: 12 #8
 
 # ORB Extractor: Fast threshold
 # Image is divided in a grid. At each cell FAST are extracted imposing a minimum response.
