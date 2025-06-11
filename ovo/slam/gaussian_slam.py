@@ -76,7 +76,7 @@ class WrapperGaussianSLAM():
         return self.gaussian_model.capture_dict()
 
     def update_pcd_obj_ids(self, pcd_objs_ids: torch.Tensor) -> None:
-        self.gaussian_model.set_objs_ids(pcd_objs_ids)
+        self.gaussian_model.set_objs_ids(pcd_objs_ids.unsqueeze(-1))
 
     def get_pcd_colors(self) -> np.ndarray:
         return ((self.gaussian_model.get_features().detach()*0.28209+0.5)*255).clip(0).flatten(0,1).cpu().numpy().astype(np.uint8)

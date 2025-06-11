@@ -43,7 +43,7 @@ If you want to run OVO using Gaussian-SLAM backbone, you will have to additional
 ```
 cd /<ovo_path>/
 conda activate ovo
-conda install faiss-gpu=1.8.0 -c pytorch
+conda install faiss-gpu=1.8.0 cudnn -c pytorch -c conda-forge
 conda install cuda-toolkit=12.1 -c nvidia/label/cuda-12.1.0
 pip install git+https://github.com/VladimirYugay/simple-knn.git@c7e51a06a4cd84c25e769fee29ab391fe5d5ff8d git+https://github.com/VladimirYugay/gaussian_rasterizer.git@9c40173fcc8d9b16778a1a8040295bc2f9
 ```
