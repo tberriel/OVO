@@ -1,7 +1,8 @@
 """ This module includes the Logger class, which is responsible for logging for both Mapper and the Tracker """
 from pathlib import Path
 from typing import Union
-
+import matplotlib
+matplotlib.use('Agg') # Set the backend before importing pyplot
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
