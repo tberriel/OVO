@@ -142,8 +142,9 @@ class OVOSemMap():
 
                             map_data = self.slam_backbone.get_map()
                             updated_points_ins_ids = self.ovo.detect_and_track_objects(scene_data, map_data, estimated_c2w)
+                            
                             if updated_points_ins_ids is not None:
-                               self.slam_backbone.update_pcd_obj_ids(updated_points_ins_ids)
+                                self.slam_backbone.update_pcd_obj_ids(updated_points_ins_ids)
 
                             self.ovo.compute_semantic_info()
                             self.logger.log_memory_usage(frame_id)
@@ -160,7 +161,9 @@ class OVOSemMap():
 
                             if query_flag.value == 1:
                                 query = query_pipe.recv()
+                                self.ovo.complete_semantic_info()
                                 query_map = self.ovo.query(query).cpu().numpy()
+                                query_map[query_map<0] = 0
                                 with query_flag.get_lock():
                                     query_pipe.send(query_map)
                                     query_flag.value = 2

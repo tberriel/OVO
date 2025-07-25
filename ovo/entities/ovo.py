@@ -492,7 +492,9 @@ class OVO:
                 object_clips[j] = obj.clip_feature.to(self.device)
             else:
                 # This should never happen
-                object_clips[j].update_clip(self.keyframes["ins_descriptors"])
+                obj.to_update = True
+                obj.update_clip(self.keyframes["ins_descriptors"])
+                object_clips[j] = obj.clip_feature.to(self.device)
         return object_clips    
 
     def capture_dict(self, debug_info: bool) -> Dict[str, Any]:
