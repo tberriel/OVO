@@ -27,7 +27,6 @@ semantic:
     multi_crop: True
     points_per_side: 16
     sam_ckpt_path: "data/input/sam_ckpts/"
-    mask_res: 384
     sam_version: "2.1"
     sam_encoder: "hiera_l"
     masks_base_path: "data/working/masks/replica_384_sam2.1"
@@ -41,6 +40,7 @@ semantic:
     use_half: True
     embed_type: learned #fixed_weights # 
     model_card: SigLIP-384 #ViT-H-14 #
+    mask_res: 384
     weights_predictor_path: data/input/weights_predictor/base
     k_top_views: 10
   kf_queue_delay: 10

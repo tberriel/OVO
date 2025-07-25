@@ -27,7 +27,6 @@ class MaskGenerator:
         self.nms_inner_th = config.get("nms_inner_th",0.5)
 
         self.multi_crop = config.get("multi_crop", False)
-        self.mask_res = config.get("mask_res",224)
         self.device = device
         if (self.precomputed or config.get("precompute", False)) and os.path.isdir(self.masks_path):
             print(" {} path already exists, skipping masks precompute! To recompute masks delete old masks!".format(self.masks_path))
@@ -191,48 +190,3 @@ class MaskGenerator:
 
         return seg_map, binary_maps
     
-    def get_seg_img(self, binary_maps: torch.Tensor, image: torch.Tensor) -> torch.Tensor:
-        """
-        For each binary map, compute the corresponding segmented image without background, reshaped at size self.mask_res. If self.multi_crop, a version with background is also computed and concatenated on the color dimension.
-
-        Args:
-            - binary_maps (tensor): A tensor of (N, H, W) containing N binary maps.
-            - image (tensor): A tensor of shape (3, H, W) representing the input image.
-
-        Returns:
-            - seg_images (torch.Tensor): A tensor containing the segmented images. Shape (N, 6, h, w), if self.multi_crop, ese (N, 3, h, w) with h = w = self.mask_res.
-        """
-        return segment_utils.segmap2segimg(binary_maps, image, self.multi_crop, out_l=self.mask_res)
-
-    def get_precomputed_seg_img(self, binary_maps: torch.Tensor, best_map_idxs: torch.Tensor, changed_binary_maps: torch.Tensor, image: torch.Tensor, frame_id: int = None) -> torch.Tensor:
-        """
-        Loads precomputed segmentation images for a given frame ID. Given that seg_images are precomputed outside of OVO, these may need to be update after binary_maps fusion.
-        Args:
-            - binary_maps (tensor): A tensor of (N, H, W) containing N binary maps.
-            - best_map_idxs (tensor): A tensor of (M) containing the indexes of the M binary maps that where used from this frame.
-            - changed_binary_maps (tensor): A tensor of (L) containing the L indexes of the binary maps that were updated.
-            - image (tensor): A tensor of shape (H, W, 3) representing the input image.
-            - frame_id (int): The ID of the frame for which to load the segmentation images (optional).
-        Returns:
-            - seg_images (torch.Tensor): A tensor containing the segmentation images loaded from the specified file.
-        """
-
-        seg_images = self._load_seg_imgs(frame_id)
-        seg_images = seg_images[best_map_idxs]
-        
-        if len(changed_binary_maps)>0:
-            seg_images[changed_binary_maps] = segment_utils.segmap2segimg(binary_maps[changed_binary_maps], image, self.multi_crop, out_l=self.mask_res)
-
-        return seg_images
-    
-    def _load_seg_imgs(self, frame_id: int) -> torch.Tensor:
-        """
-        Loads precomputed segmentation images for a given frame ID.
-        Args:
-            frame_id (int): The ID of the frame for which to load the segmentation images.
-        Returns:
-            seg_images (torch.Tensor): A numpy array containing the segmentation images loaded from the specified file.
-        """
-        img_path = os.path.join(self.masks_path, f"{frame_id:04d}_seg_imgs_default.npy")
-        seg_images = torch.from_numpy(np.load(img_path)).to(self.device)
-        return seg_images

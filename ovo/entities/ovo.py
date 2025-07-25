@@ -33,6 +33,10 @@ class OVO:
         self.device = device
         self.n_top_views = config["clip"].get("k_top_views", 0)
         Instance3D.n_top_kf = self.n_top_views
+        
+        # For backward compatibility
+        if "mask_res" in config["sam"] and "mask_res" not in config["clip"]:
+            config["clip"]["mask_res"] = config["sam"]["mask_res"]
 
         self.clip_generator = CLIPGenerator(config["clip"], device=device)
         if not eval:
@@ -332,10 +336,7 @@ class OVO:
                     return
                 matched_ins_ids, binary_maps = np.asarray(matched_ins_ids)[obj_to_compute].tolist(), binary_maps[obj_to_compute]
 
-
-            image = torch.from_numpy(image.transpose((2,0,1))).to(self.device)
-            seg_images = self._get_seg_image(image, binary_maps)
-            clip_embeds = self._extract_clip(image[None,...]/255., seg_images/255.).cpu()
+            clip_embeds = self._extract_clip(image, binary_maps).cpu()
             self._update_matched_objects_clip(clip_embeds, matched_ins_ids, kf_id)
 
             if self.config.get("log", False):
@@ -343,9 +344,9 @@ class OVO:
                 self.logger.log_ovo_stats(
                     {
                     "frame_id":frame_id,
-                    "t_seg": round(self._time_cache[0],2),
-                    "t_clip": round(self._time_cache[1],2),
-                    "t_up": round(self._time_cache[2],3)
+                    #"t_seg": round(self._time_cache[0],2),
+                    "t_clip": round(self._time_cache[0],2),
+                    "t_up": round(self._time_cache[1],3)
                     }
                     ,
                     print_output=True
@@ -394,32 +395,20 @@ class OVO:
         # 4. Update object descriptors
         self.update_objects_clip()
         return  points_ins_ids 
-
-    @profil
-    def _get_seg_image(self, image: torch.Tensor, binary_maps: torch.Tensor) -> torch.Tensor:
-        """Profiled call to self.mask_generator.get_seg_img
-
-        Args:
-            - binary_maps (tensor): A tensor of (N, H, W) containing N binary maps.
-            - image (tensor): A tensor of shape (H, W, 3) representing the input image.
-
-        Returns:
-            - seg_images (torch.Tensor): Segmented images with shape (N, 3, h, w), if self.config["clip"]["embed_type"] == "vanilla" , else (N, 6, h, w) with h = w = self.config["sam"]["mask_res"].
-        """
-        return self.mask_generator.get_seg_img(binary_maps, image)
     
     @profil
-    def _extract_clip(self, image: torch.Tensor, seg_images: torch.Tensor) -> List[Any]:
+    def _extract_clip(self, image: torch.Tensor, binary_maps: torch.Tensor) -> List[Any]:
         """Profiled call to self.clip_generator.extract_clip. Computes a CLIP vector for each mask of the segmented image.
         Args:
             - image (torch.Tensor): Full source RGB image with dimensions (H,W,3) and range 0-255.
-            - seg_images (torch.Tensor): array of shape (N,6,h,w), with h < H and w < W. The first 3 channels of the second dimension store the segment with black background of a 2D instance, while the last 3 channels store the image of the minimum bounding box arround that 2D semgent with background.
+            - binary_maps (torch.Tensor): A tensor of (N, H, W) containing N binary maps, one for each segmented instance.
             - return_all: if True returns the three computed descriptors of each image in seg_images instead of merging them.
         Return:
             - climp_embeds: each level/key stores a list of numpy arrays with dim (N, self.clip_dim).    
         """
-        return self.clip_generator.extract_clip(image, seg_images, self.config.get("return_all_clips", False))
-
+        image = torch.from_numpy(image.transpose((2,0,1))).to(self.device)
+        return self.clip_generator.extract_clip(image, binary_maps, self.config.get("return_all_clips", False)).cpu()
+    
     @profil
     def _update_matched_objects_clip(self, clip_embeds: torch.Tensor, matched_ins_ids: List[int], kf_id: int) -> None:  
         """

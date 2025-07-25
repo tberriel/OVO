@@ -4,6 +4,8 @@ import yaml
 import os
 
 from ..utils import clip_utils
+from ..utils import segment_utils
+
 from .clips_merging import WeightsPredictorMerger
 
 class CLIPGenerator:
@@ -11,6 +13,8 @@ class CLIPGenerator:
         self.config = config
         self.device = device
         self.embed_type = config.get("embed_type", "vanilla")
+        self.mask_res = config.get("mask_res", 384)
+
         if self.embed_type == "learned":
 
             with open(os.path.join(config["weights_predictor_path"], "hparams.yaml"), "r") as f:
@@ -104,11 +108,11 @@ class CLIPGenerator:
         return self.model.encode_image(processed_input)    
 
     @torch.no_grad
-    def extract_clip(self, image: torch.Tensor, seg_images: torch.Tensor, return_all: bool = False) -> torch.Tensor:
+    def extract_clip(self, image: torch.Tensor, binary_maps: torch.Tensor, return_all: bool = False) -> torch.Tensor:
         """ Computes a CLIP vector for each mask of the segmented image.
         Args:
-            - image (torch.Tensor): Full source RGB image with dimensions (3,H,W) and range 0-1.
-            - seg_images (torch.Tensor): array of shape (N,6,h,w), with h < H and w < W. The first 3 channels of the second dimension store the segment with black background of a 2D instance, while the last 3 channels store the image of the minimum bounding box arround that 2D semgent with background.
+            - image (torch.Tensor): Full source RGB image with dimensions (3,H,W) and range 0-255.
+            - binary_maps (torch.Tensor): A tensor of (N, H, W) containing N binary maps, one for each segmented instance.
             - return_all: if True returns the three computed descriptors of each image in seg_images instead of merging them.
         Return:
             - climp_embeds: list of numpy arrays with dim (N, self.clip_dim).        
@@ -116,8 +120,9 @@ class CLIPGenerator:
         if self.embed_type != "vanilla":
             if len(image.shape) ==3:
                 image = image[None, ...]
-            clip_g = torch.nn.functional.normalize(self.encode_image(image), p=2,dim=-1)
+            clip_g = torch.nn.functional.normalize(self.encode_image(image/255.), p=2,dim=-1)
 
+        seg_images = segment_utils.segmap2segimg(binary_maps, image, self.embed_type != "vanilla", out_l=self.mask_res)/255.
         if len(seg_images) == 0:
             return torch.tensor([], device = self.device)
         
@@ -127,7 +132,6 @@ class CLIPGenerator:
             n_clips = seg_images.shape[0]
             seg_images = torch.vstack([seg_images[:,:3], seg_images[:,3:]])
             clip_seg = torch.nn.functional.normalize(self.encode_image(seg_images), p=2,dim=-1)
-
             if return_all:
                 clip_embed = torch.cat([clip_g.repeat(n_clips,1)[:,None], clip_seg[:n_clips][:,None], clip_seg[n_clips:][:,None] ],dim=1)
             else:
@@ -177,4 +181,3 @@ class CLIPGenerator:
 
         sim_map = self.get_similarity(txt_embeds, ins_descriptors, *self.similarity_args)
         return sim_map
-
