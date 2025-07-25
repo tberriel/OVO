@@ -127,7 +127,7 @@ class OVOSemMap():
                             self.slam_backbone.map_updated = False
 
                     if frame_id % self.segment_every == 0:
-                        with torch.no_grad() and torch.autocast(device_type=self.device, dtype=torch.bfloat16):
+                        with torch.inference_mode() and torch.autocast(device_type=self.device, dtype=torch.bfloat16):
                             if len(frame_data)==5:
                                 image = frame_data[-1]
                             else:
