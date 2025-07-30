@@ -357,6 +357,16 @@ class OVO:
         # 0. clean the queue
         self.complete_semantic_info()
         points_3d, points_ids, points_ins_ids = map_data
+        """
+        # 0.1 Remove deleted_kfs : 
+        deleted_kfs = []
+        for kf in self.keyframes["frame_id"]:
+            if kf not in kfs:
+                deleted_kfs.append(kf)
+                self.keyframes["ins_descriptors"].pop(kf) # BUG: Tries to pop a KF that is not in self.keyframes
+                self.keyframes["frame_id"][kf] = "Deleted" #deleting from self.keyframes["frame_id"] would require a checkpoint refactor to change it from list to dict
+                # self.keyframes["ins_maps"] # This variable is for Debug, better to not remove it
+        """
         # 1. remove 3D instances that are not in pcd_obj_ids, despite some instances having been detected with > than 100 points, the deletion of Keyframes, can reduce their support to 1 or 2 points. TODO: We should 1) recompute the support of this instances by projecting the full pcd into them or 2) just remove them.
         objects_list = []
         objects_to_del = []
