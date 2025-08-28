@@ -122,7 +122,7 @@ class CLIPGenerator:
                 image = image[None, ...]
             clip_g = torch.nn.functional.normalize(self.encode_image(image/255.), p=2,dim=-1)
 
-        seg_images = segment_utils.segmap2segimg(binary_maps, image, self.embed_type != "vanilla", out_l=self.mask_res)/255.
+        seg_images = segment_utils.segmap2segimg(binary_maps, image.squeeze(), self.embed_type != "vanilla", out_l=self.mask_res)/255.
         if len(seg_images) == 0:
             return torch.tensor([], device = self.device)
         
