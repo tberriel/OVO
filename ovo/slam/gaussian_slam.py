@@ -75,9 +75,17 @@ class WrapperGaussianSLAM():
     def get_map_dict(self) -> Dict[str, Any]:
         return self.gaussian_model.capture_dict()
 
+    def get_cam_dict(self) -> dict[str, Any]:
+        out_dict = {}
+        zeros = torch.zeros((4, 4), device=self.device, dtype=torch.float32)
+        for i in range(self.estimated_c2ws.shape[0]):
+            if (self.estimated_c2ws[i] == zeros).all():
+                continue
+            out_dict[i] = self.estimated_c2ws[i].cpu().numpy()
+        return out_dict
+    
     def update_pcd_obj_ids(self, pcd_objs_ids: torch.Tensor) -> None:
         self.gaussian_model.set_objs_ids(pcd_objs_ids.unsqueeze(-1))
 
     def get_pcd_colors(self) -> np.ndarray:
         return ((self.gaussian_model.get_features().detach()*0.28209+0.5)*255).clip(0).flatten(0,1).cpu().numpy().astype(np.uint8)
-    

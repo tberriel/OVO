@@ -111,6 +111,12 @@ class VanillaMapper():
             "color": self.pcd_colors.clone().detach().cpu()
         }
 
+    def get_cam_dict(self) -> dict[str, Any]:
+        out_dict = {}
+        for key, item in self.estimated_c2ws.items():
+            out_dict[key] = item.cpu().numpy()
+        return out_dict
+    
     def update_pcd_obj_ids(self, pcd_objs_ids: torch.Tensor):
         self.pcd_obj_ids = pcd_objs_ids.unsqueeze(-1)
 

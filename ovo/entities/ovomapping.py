@@ -57,11 +57,11 @@ class OVOSemMap():
         cam_intrinsics =  torch.tensor(self.dataset.intrinsics.astype(np.float32), device=self.device)
         config["semantic"]["debug_info"] = self.config.get("debug_info", False)
 
-        self.slam_backbone = get_slam_backbone(config, self.dataset, cam_intrinsics)
         self.ovo = OVO(config["semantic"], self.logger, config["data"]["scene_name"], cam_intrinsics, device=self.device)
 
         if config["semantic"]["sam"].get("precomputed", False) or config["semantic"]["sam"].get("precompute", False):
             self.ovo.mask_generator.precompute(self.dataset, self.segment_every)
+        self.slam_backbone = get_slam_backbone(config, self.dataset, cam_intrinsics)
 
     def _setup_output_path(self, output_path: str) -> None:
         """ Sets up the output path for saving results based on the provided configuration. 
@@ -87,6 +87,10 @@ class OVOSemMap():
         }
         io_utils.save_dict_to_ckpt(
             submap_ckpt, "ovo_map.ckpt", directory=self.output_path)    
+        if self.config["slam"].get("save_estimated_cam", False):
+            c2w = self.slam_backbone.get_cam_dict()
+            with open(self.output_path / "estimated_c2w.npy", "wb") as f:
+                torch.save(c2w, f)
 
     def run(self) -> None:
         """ Starts the main program flow, including tracking and mapping. If self.config["vis"]["stream"] is True, a Open3D visualizer is launched in a parallel process.
