@@ -87,6 +87,7 @@ class Logger(object):
             img_dir (str): the directory to save the visualization.
             seeding_mask: used in mapper when adding gaussians, if not none.
         """
+        return
         gt_depth_np = gt_depth.cpu().numpy()
         gt_color_np = gt_color.cpu().numpy()
 
