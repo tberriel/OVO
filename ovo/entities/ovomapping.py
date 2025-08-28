@@ -94,7 +94,7 @@ class OVOSemMap():
 
         stream = self.config["vis"]["stream"]
         show_stream = self.config["vis"]["show_stream"]
-
+        spf = []
         with mp.Manager() as manager: 
             if stream:
                 cam_data = {"height":self.dataset.height, "width": self.dataset.width, "intrinsic": self.dataset.intrinsics} 
@@ -127,6 +127,7 @@ class OVOSemMap():
                             self.slam_backbone.map_updated = False
 
                     if frame_id % self.segment_every == 0:
+                        t_spf_i = time.time()
                         with torch.inference_mode() and torch.autocast(device_type=self.device, dtype=torch.bfloat16):
                             if len(frame_data)==5:
                                 image = frame_data[-1]
@@ -149,6 +150,7 @@ class OVOSemMap():
                             self.ovo.compute_semantic_info()
                             self.logger.log_memory_usage(frame_id)
 
+                        spf.append(time.time()-t_spf_i)
                         if stream:
                             pcd, _, pcd_obj_ids = self.slam_backbone.get_map()
                             c2w = self.slam_backbone.get_c2w(frame_id)
@@ -187,6 +189,7 @@ class OVOSemMap():
                 time.sleep(5)
                 
         self.logger.log_fps(fps)
+        self.logger.log_spf(spf)
         self.logger.log_max_memory_usage()
         self.logger.write_stats()
         self.logger.print_final_stats()

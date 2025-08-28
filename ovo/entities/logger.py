@@ -12,7 +12,7 @@ class Logger:
         (self.output_path / "logger").mkdir(exist_ok=True, parents=True)
         (self.output_path / "logger" / "segment_vis").mkdir(exist_ok=True, parents=True)
         stat_keys = [
-            "frame_id", "t_sam", "t_obj","n_obj", "n_matches", "t_up", "t_seg",   "t_clip", "avg_fps", "ram", "vram"]
+            "frame_id", "t_sam", "t_obj","n_obj", "n_matches", "t_up", "t_seg",   "t_clip", "avg_fps", "ram", "vram", "spf"]
         
         self.stats ={key: [] for key in stat_keys}
         self.python_process = psutil.Process(pid)
@@ -49,6 +49,9 @@ class Logger:
                     "Semantic/avg_fps": avg_fps
                 }
             )
+            
+    def log_spf(self, spf: float):
+        self.stats["spf"].append(spf)
             
     def log_memory_usage(self, frame_id: int):
         """
