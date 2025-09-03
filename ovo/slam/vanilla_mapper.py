@@ -110,12 +110,24 @@ class VanillaMapper():
             "max_id": self.max_id,
             "color": self.pcd_colors.clone().detach().cpu()
         }
+    
+    def set_map_dict(self, map_dict: Dict[str, Any]) -> None:
+        self.pcd = map_dict["xyz"].to(self.device)
+        self.pcd_obj_ids = map_dict["obj_ids"].to(self.device)
+        self.pcd_ids = map_dict["ids"].to(self.device)
+        self.max_id = map_dict["max_id"]
+        self.pcd_colors = map_dict["color"].to(self.device)
 
     def get_cam_dict(self) -> dict[str, Any]:
         out_dict = {}
         for key, item in self.estimated_c2ws.items():
             out_dict[key] = item.cpu().numpy()
         return out_dict
+
+    def set_cam_dict(self, cam_dict: dict[str, Any]) -> None:
+        self.estimated_c2ws = {}
+        for key, item in cam_dict.items():
+            self.estimated_c2ws[int(key)] = torch.from_numpy(item).to(self.device)
     
     def update_pcd_obj_ids(self, pcd_objs_ids: torch.Tensor):
         self.pcd_obj_ids = pcd_objs_ids.unsqueeze(-1)

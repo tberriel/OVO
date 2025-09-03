@@ -63,6 +63,13 @@ class OVOSemMap():
             self.ovo.mask_generator.precompute(self.dataset, self.segment_every)
         self.slam_backbone = get_slam_backbone(config, self.dataset, cam_intrinsics)
 
+
+        self.first_frame = 0
+        if self.config.get("restore_map", False):
+            assert config["slam"].get("slam_module","vanilla") == "vanilla", "Restoring representation only implemented for 'vanilla' configuration!"
+            self.restore_representation()
+            self.first_frame = list(self.slam_backbone.estimated_c2ws.keys())[-1]+1
+
     def _setup_output_path(self, output_path: str) -> None:
         """ Sets up the output path for saving results based on the provided configuration. 
         Args:
@@ -92,6 +99,24 @@ class OVOSemMap():
             with open(self.output_path / "estimated_c2w.npy", "wb") as f:
                 torch.save(c2w, f)
 
+    def restore_representation(self) -> None:
+        ckpt_path = self.output_path / "ovo_map.ckpt"
+        assert ckpt_path.exists(), f"Missing required checkpoint to restore: {ckpt_path}"
+        ckpt = torch.load(ckpt_path, map_location=self.device, weights_only=False)
+
+        self.ovo.restore_dict(ckpt["ovo_map_params"], debug_info=self.config.get("debug", False))
+        self.slam_backbone.set_map_dict(ckpt["map_params"])
+        
+        c2w_path = self.output_path / "estimated_c2w.npy"
+        if c2w_path.exists():
+            c2w = torch.load(c2w_path)
+            self.slam_backbone.set_cam_dict(c2w)
+        else:
+            print(f"Missing cameras positions to restore: {c2w_path}")
+            print("Resotring without cameras positions!")
+    
+
+
     def run(self) -> None:
         """ Starts the main program flow, including tracking and mapping. If self.config["vis"]["stream"] is True, a Open3D visualizer is launched in a parallel process.
         """
@@ -99,6 +124,7 @@ class OVOSemMap():
         stream = self.config["vis"]["stream"]
         show_stream = self.config["vis"]["show_stream"]
         spf = []
+
         with mp.Manager() as manager: 
             if stream:
                 cam_data = {"height":self.dataset.height, "width": self.dataset.width, "intrinsic": self.dataset.intrinsics} 
@@ -110,7 +136,7 @@ class OVOSemMap():
 
             torch.cuda.synchronize()
             t_start = time.time()
-            for frame_id in range(len(self.dataset)):
+            for frame_id in range(self.first_frame, len(self.dataset)):
                 if self.track_every == 1 or frame_id%self.track_every==0 or frame_id%self.map_every==0 or frame_id%self.segment_every==0:
                     frame_data = self.dataset[frame_id]
                     self.slam_backbone.track_camera(frame_data)
