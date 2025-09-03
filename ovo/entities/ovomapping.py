@@ -217,7 +217,7 @@ class OVOSemMap():
             t_end = time.time()
             fps = len(self.dataset)/self.segment_every/(t_end-t_start)
             if stream and p.is_alive():
-                while mpqueue.qsize()>0:
+                while mpqueue.qsize()>0 and p.is_alive():
                     if query_flag.value == 1:
                         query = query_pipe.recv()
                         query_map = self.ovo.query(query).cpu().numpy()
