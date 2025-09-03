@@ -10,6 +10,7 @@ slam:
   slam_module: vanilla #gaussian_slam #orbslam2 #
   use_viewer: False # only used with orbslam2
   close_loops: True # only used with orbslam2
+  save_estimated_cam: True
 vis:
   stream: False
   show_stream: False # this is going to be ignored if stream is false
