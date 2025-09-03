@@ -32,6 +32,8 @@ class MaskGenerator:
             print(" {} path already exists, skipping masks precompute! To recompute masks delete old masks!".format(self.masks_path))
             self.mask_generator = None
         else:
+            #import sys
+            #torch.compiler.allow_in_graph(sys._getframe)
             self.load_mask_generator(self.config)
 
     def load_mask_generator(self, config: Dict[str, Any]) -> None:
@@ -46,7 +48,9 @@ class MaskGenerator:
         self.mask_generator = segment_utils.load_sam(config, device = self.device)
 
         with torch.no_grad() and torch.autocast(device_type=self.device, dtype=self.dtype):
-            self.mask_generator.generate(np.random.rand(512,512,3).astype(np.float32)) #First pass for compilation
+            #First pass for compilation
+            self.mask_generator.generate(np.random.rand(512,512,3).astype(np.float32))
+            self.mask_generator.generate(np.random.rand(512,512,3).astype(np.float32)) 
 
     def to(self, device: str) -> None:
         """
