@@ -55,6 +55,11 @@ class OVO:
         self.next_ins_id = 0
         self.kf_id = 0
 
+        # Sem loop-closure parameters
+        self.th_centroid = config.get("th_centroid", 1.5)
+        self.th_cossim = config.get("th_cossim", 0.81)
+        self.th_points = config.get("th_points", 0.1)
+
         print('Semantic config')
         pprint.PrettyPrinter().pprint(config)
 
@@ -356,7 +361,7 @@ class OVO:
     def update_map(self, map_data, kfs):
         # 0. clean the queue
         self.complete_semantic_info()
-        _, _, points_ins_ids = map_data
+        points_3d, _, points_ins_ids = map_data
 
         # 0.1 Remove deleted_kfs : 
         deleted_kfs = []
@@ -379,6 +384,12 @@ class OVO:
                 objects_to_del.append(self.objects[ins_id])
         # 2. Fuse 3D instances that fulfill a condition. 
         # TODO: optimize brute-force approach (compare all instances to each-other)
+        #precompute pointcloud
+        obj_pcds = {}
+        for instance in objects_list:
+            obj_pcd = points_3d[points_ins_ids == instance.id]
+            obj_pcds[instance.id] = [obj_pcd, obj_pcd.mean(axis=0)]
+
         objects = {}
         fused_objects = {}
         for i, instance1 in enumerate(objects_list):
@@ -387,7 +398,7 @@ class OVO:
             for instance2 in objects_list[i+1:]:
                 if instance2.id in fused_objects:
                     continue
-                elif instance_utils.same_instance(instance1, instance2, map_data):
+                elif instance_utils.same_instance(instance1, instance2, obj_pcds[instance1.id], obj_pcds[instance2.id], self.th_centroid, self.th_cossim, self.th_points):
                     instance1, points_ins_ids = instance_utils.fuse_instances(instance1, instance2, map_data)
                     fused_objects[instance2.id] = instance1.id
             objects[instance1.id] = instance1
