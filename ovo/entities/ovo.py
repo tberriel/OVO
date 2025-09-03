@@ -356,17 +356,18 @@ class OVO:
     def update_map(self, map_data, kfs):
         # 0. clean the queue
         self.complete_semantic_info()
-        points_3d, points_ids, points_ins_ids = map_data
-        """
+        _, _, points_ins_ids = map_data
+
         # 0.1 Remove deleted_kfs : 
         deleted_kfs = []
-        for kf in self.keyframes["frame_id"]:
+        for i, kf in enumerate(self.keyframes["frame_id"]):
             if kf not in kfs:
                 deleted_kfs.append(kf)
-                self.keyframes["ins_descriptors"].pop(kf) # BUG: Tries to pop a KF that is not in self.keyframes
-                self.keyframes["frame_id"][kf] = "Deleted" #deleting from self.keyframes["frame_id"] would require a checkpoint refactor to change it from list to dict
+                if kf in self.keyframes["ins_descriptors"]: # Not all Keyframes will have descriptors associated
+                    self.keyframes["ins_descriptors"].pop(kf)
+                self.keyframes["frame_id"][i] = "Deleted" #deleting from self.keyframes["frame_id"] would require a checkpoint refactor to change it from list to dict
                 # self.keyframes["ins_maps"] # This variable is for Debug, better to not remove it
-        """
+
         # 1. remove 3D instances that are not in pcd_obj_ids, despite some instances having been detected with > than 100 points, the deletion of Keyframes, can reduce their support to 1 or 2 points. TODO: We should 1) recompute the support of this instances by projecting the full pcd into them or 2) just remove them.
         objects_list = []
         objects_to_del = []
@@ -394,7 +395,7 @@ class OVO:
         # 3. Updated saved info
         for id2, id1 in fused_objects.items():
             for kf in self.objects[id2].kfs_ids:
-                if id2 not in self.keyframes["ins_descriptors"][kf]:
+                if kf not in self.keyframes["ins_descriptors"] or id2 not in self.keyframes["ins_descriptors"][kf]:
                     continue
                 # If both ins were observed in the same frame, the ins_maps should be fused and descriptors recomputed. Neverthless, it is not probable that two instances seen in the same kf will fulfill the distance threshold
                 ins_descriptor2  = self.keyframes["ins_descriptors"][kf].pop(id2)
