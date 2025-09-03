@@ -174,6 +174,60 @@ class ScanNetPP(BaseDataset):
         return index, color_data, depth_data, self.poses[index]
 
 
+class Matterport(BaseDataset):
+
+    def __init__(self, dataset_config: dict):
+        super().__init__(dataset_config)
+        self.color_paths = sorted(
+            list((self.dataset_path / "rgb").glob("*.png")))
+        self.depth_paths = sorted(
+            list((self.dataset_path / "depth").glob("*.png")))
+        self.load_poses(self.dataset_path / "pose")
+        print(f"Loaded {len(self.color_paths)} frames")
+
+    def load_poses(self, path):
+        poses = os.listdir(path)
+        poses.sort()
+        self.poses = []
+        C = np.eye(4)
+        C[1, 1] = -1
+        C[2, 2] = -1
+        for pose_file in poses:
+            c2w = np.loadtxt(str(path / pose_file)).reshape(4, 4).astype(np.float32)
+
+            c2w = np.matmul(c2w, C)
+            self.poses.append(c2w.astype(np.float32))
+          
+    def _load_depth_intrinsics(self, H, W):
+        """
+        Load the depth camera intrinsics.
+
+        Returns:
+            Depth camera intrinsics as a numpy array (3x3 matrix).
+        """        
+        H, W = 720, 1080
+        hfov = 90 * np.pi / 180
+        vfov = 2 * math.atan(np.tan(hfov / 2) * H / W)
+        fx = W / (2.0 * np.tan(hfov / 2.0))
+        fy = H / (2.0 * np.tan(vfov / 2.0))
+        cx = W / 2
+        cy = H / 2
+        depth_camera_matrix = np.array([[fx, 0.0, cx], [0.0, fy, cy], [0.0, 0.0, 1.0]])
+        return depth_camera_matrix
+      
+    def __getitem__(self, index):
+        color_data = cv2.imread(str(self.color_paths[index]))
+        color_data = cv2.resize(color_data, (self.width, self.height), interpolation=cv2.INTER_LINEAR)# added
+        color_data = color_data.astype(np.uint8)# added
+        color_data = cv2.cvtColor(color_data, cv2.COLOR_BGR2RGB)
+        depth_data = cv2.imread(
+            str(self.depth_paths[index]), cv2.IMREAD_UNCHANGED)
+        depth_data = cv2.resize(depth_data.astype(float), (self.width, self.height), interpolation=cv2.INTER_NEAREST)
+        depth_data = depth_data.astype(np.float32) / self.depth_scale
+
+        return index, color_data, depth_data, self.poses[index]
+
+
 def get_dataset(dataset_name: str):
     if dataset_name == "replica":
         return Replica
@@ -181,4 +235,6 @@ def get_dataset(dataset_name: str):
         return ScanNet
     elif dataset_name == "scannetpp":
         return ScanNetPP
+    elif dataset_name == 'matterport':
+        return Matterport
     raise NotImplementedError(f"Dataset {dataset_name} not implemented")
