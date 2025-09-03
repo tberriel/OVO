@@ -20,7 +20,7 @@ class WrapperORBSLAM2(VanillaMapper):
     def __init__(self, config: Dict[str, Any], cam_intrinsics: torch.Tensor, world_ref=torch.eye(4)) -> None:
         super().__init__(config, cam_intrinsics)
 
-        self.close_loops = config["slam"].get("close_loops", False)
+        self.close_loops = config["slam"].get("close_loops", True)
         self.last_big_change_id = 0
         self.map_updated = False
         self.world_ref = world_ref.to(self.device)
@@ -33,16 +33,16 @@ class WrapperORBSLAM2(VanillaMapper):
         else:
             orbslam_config_path = configs_path / f"{config['dataset_name']}.yaml"
 
-        self.orbslam2 = orbslam2.System(str(vocab_path), str(orbslam_config_path), orbslam2.Sensor.RGBD, config["slam"].get("use_viewer",False), not self.close_loops)
-        self.orbslam2.initialize()
+        self.orbslam = orbslam.System(str(vocab_path), str(orbslam_config_path), orbslam.Sensor.RGBD, config["slam"].get("use_viewer",False), not self.close_loops)
+        self.orbslam.initialize()
 
     def track_camera(self, frame_data: List[Any]) -> None:
         frame_id, rgb_image, depth_image = frame_data[:3]
         tframe = frame_id
-        self.orbslam2.process_image_rgbd(rgb_image, depth_image, tframe) # This actually blocks untill tracking is completed
-        tracking_state = self.orbslam2.get_tracking_state()
-        if tracking_state == orbslam2.TrackingState.OK:
-            orb_c2w = self.orbslam2.get_last_trajectory_point()
+        self.orbslam.process_image_rgbd(rgb_image, depth_image, tframe) # This actually blocks untill tracking is completed
+        tracking_state = self.orbslam.get_tracking_state()
+        if tracking_state == orbslam.TrackingState.OK:
+            orb_c2w = self.orbslam.get_last_trajectory_point()
             assert int(orb_c2w[0]) == frame_id, "Retrieved wrong frame pose" # This should never happen
             self.estimated_c2ws[frame_id] = self.world_ref@convert_pose(orb_c2w, device = self.device)
         else:
@@ -51,7 +51,7 @@ class WrapperORBSLAM2(VanillaMapper):
     
     def map(self, frame_data, c2w) -> None:
         # check if frame is a KeyFrame
-        if self.orbslam2.is_last_frame_kf(): # If tracking and maping are parallelized, this call would have a racing condition with ORB-SLAM2 tracking thread
+        if self.orbslam.is_last_frame_kf(): # If tracking and maping are parallelized, this call would have a racing condition with ORB-SLAM2 tracking thread
             frame_id = frame_data[0]
             first_p_idx = self.pcd_ids.shape[0]
             super().map(frame_data, c2w)
@@ -59,20 +59,16 @@ class WrapperORBSLAM2(VanillaMapper):
             self.kfs[frame_id] = {"id": frame_id , "pcd_idxs":(first_p_idx, last_p_idx)} # Assumes pcd is not pruned outside of self._update_map
 
         # detect loop-closure of GBA
-        last_big_change_id = self.orbslam2.get_last_big_change_idx()
+        last_big_change_id = self.orbslam.get_last_big_change_idx()
         # LC and GBA happen one after the other, we could save some computation detecting only GBA
         if self.close_loops and last_big_change_id != self.last_big_change_id:
             self.last_big_change_id = last_big_change_id
-            ## DEBUG:
-            print(f" Least seen object before: {torch.unique(self.pcd_obj_ids, return_counts=True)[1].min()}")
             self.update_map()
-            ## DEBUG:
-            print(f" Least seen object after: {torch.unique(self.pcd_obj_ids, return_counts=True)[1].min()}")
 
     def update_map(self):
         print("Updating dense map ...")
         # update kfs and pcd poses:
-        updated_kfs = self.orbslam2.get_keyframe_points()
+        updated_kfs = self.orbslam.get_keyframe_points()
 
         new_kfs = {}
         new_pcd = []
@@ -121,4 +117,4 @@ class WrapperORBSLAM2(VanillaMapper):
     
 
     def __del__(self) -> None:
-        self.orbslam2.shutdown()
+        self.orbslam.shutdown()
