@@ -1,7 +1,6 @@
 from typing import Any, Dict, List
-import orbslam2
+import orbslam3 as orbslam
 import torch
-import os
 from pathlib import Path
 
 from .vanilla_mapper import VanillaMapper
@@ -26,7 +25,7 @@ class WrapperORBSLAM2(VanillaMapper):
         self.world_ref = world_ref.to(self.device)
         self.kfs = {}
 
-        configs_path = Path(config["slam"]["config_path"]) / "orbslam2"
+        configs_path = Path(config["slam"]["config_path"]) / "orbslam3"
         vocab_path = configs_path  / "vocabulary" / "ORBvoc.txt"
         if (configs_path/ config["dataset_name"].lower()/ f"{config['data']['scene_name']}.yaml").exists():
             orbslam_config_path = configs_path / config["dataset_name"].lower()/ f"{config['data']['scene_name']}.yaml"
