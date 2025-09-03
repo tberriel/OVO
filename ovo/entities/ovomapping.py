@@ -145,19 +145,24 @@ class OVOSemMap():
                     missing_depth = not (frame_data[2]>0).any()
                     if estimated_c2w is None or missing_depth :
                         continue
-
+                    t_lc = 0
                     if frame_id % self.map_every == 0 or self.config["slam"]["slam_module"] == "orbslam2":
                         self.slam_backbone.map(frame_data, estimated_c2w)
                         if self.slam_backbone.map_updated:
+                            torch.cuda.synchronize()
+                            t_lc_i = time.time()
                             map_data = self.slam_backbone.get_map()
                             kfs = self.slam_backbone.get_kfs()
                             updated_points_ins_ids = self.ovo.update_map(map_data, kfs)
                             if updated_points_ins_ids is not None:
                                self.slam_backbone.update_pcd_obj_ids(updated_points_ins_ids)
                             self.slam_backbone.map_updated = False
-
+                            torch.cuda.synchronize()
+                            t_lc = time.time() - t_lc_i
+                            print(f"Sem LC update took {t_lc};")
+                    t_sem = 0
                     if frame_id % self.segment_every == 0:
-                        t_spf_i = time.time()
+                        t_sem_i = time.time()
                         with torch.inference_mode() and torch.autocast(device_type=self.device, dtype=torch.bfloat16):
                             if len(frame_data)==5:
                                 image = frame_data[-1]
@@ -180,7 +185,8 @@ class OVOSemMap():
                             self.ovo.compute_semantic_info()
                             self.logger.log_memory_usage(frame_id)
 
-                        spf.append(time.time()-t_spf_i)
+                        t_sem = time.time()-t_sem_i
+                        
                         if stream:
                             pcd, _, pcd_obj_ids = self.slam_backbone.get_map()
                             c2w = self.slam_backbone.get_c2w(frame_id)
@@ -199,6 +205,9 @@ class OVOSemMap():
                                 with query_flag.get_lock():
                                     query_pipe.send(query_map)
                                     query_flag.value = 2
+                    if t_sem+t_lc > 0:
+                        spf.append(t_sem + t_lc)         
+
                     if frame_id % 50 == 0:
                         gc.collect()
                 
