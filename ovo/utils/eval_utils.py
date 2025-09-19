@@ -10,11 +10,12 @@ import numpy as np
 import torch 
 import sys
 
-def match_labels_to_vtx(points_3d_labels: torch.Tensor, points_3d: torch.Tensor, mesh_vtx: torch.Tensor, filter_unasigned: bool = True, tree: str ="kd") -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+def match_labels_to_vtx(points_3d_labels: torch.Tensor, points_3d: torch.Tensor, mesh_vtx: torch.Tensor, filter_unasigned: bool = True, tree: str ="kd", verbose=False) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
     # assume points_3d and mesh_vtx in the same reference frame
     if filter_unasigned:
         assigned_mask = (points_3d_labels >-1).squeeze()
-        print(f"Assigned points {assigned_mask.sum()}, {assigned_mask.float().mean()*100:.1f}")
+        if verbose:
+            print(f"Assigned points {assigned_mask.sum()}, {assigned_mask.float().mean()*100:.1f}")
         points_3d_labels = points_3d_labels[assigned_mask]
         points_3d = points_3d[assigned_mask]
         assert len(points_3d_labels), "All points are unassigned"
@@ -153,7 +154,7 @@ def iou_acc_from_confmat(confmat: np.ndarray, num_classes: int, ignore: List[int
         acc_valid_mask = np.ones_like(acc_values,dtype=bool)
     return iou_values, iou_valid_mask, weights_values, acc_values, acc_valid_mask
 
-def eval_semantics(output_path: str, gt_path: str, scenes: List[str], dataset_info: Dict[str, Any], mask_nan: bool = True, ignore_background: bool = False, verbose: bool = True) -> Tuple[np.ndarray, np.ndarray]:
+def eval_semantics(output_path: str, gt_path: str, scenes: List[str], dataset_info: Dict[str, Any], mask_nan: bool = True, ignore_background: bool = False, verbose: bool = True, return_metrics = False) -> Tuple[np.ndarray, np.ndarray]:
     
     num_classes = dataset_info["num_classes"]
     map_to_reduced = dataset_info.get("map_to_reduced", None)
@@ -188,20 +189,33 @@ def eval_semantics(output_path: str, gt_path: str, scenes: List[str], dataset_in
     # Per scene:
     for i in range(len(scenes)):
         iou_values, iou_valid_mask, weights_values, acc_values, acc_valid_mask = iou_acc_from_confmat(confusion[i], num_classes, ignore, mask_nan, False, labels)
-        print(f"Scene: {scenes[i]}")
-        print(f'mIoU: \t {np.mean(iou_values[iou_valid_mask]):.2%}; mAcc: \t {np.mean(acc_values[acc_valid_mask]):.2%}\n ')
-        print(f'f-mIoU: \t {np.sum(iou_values[iou_valid_mask]*weights_values[iou_valid_mask])/weights_values[iou_valid_mask].sum():.2%}; f-mAcc: \t {np.sum(acc_values[acc_valid_mask]*weights_values[acc_valid_mask])/weights_values[acc_valid_mask].sum():.2%}\n')
+        if verbose:
+            print(f"Scene: {scenes[i]}")
+            print(f'mIoU: \t {np.mean(iou_values[iou_valid_mask]):.2%}; mAcc: \t {np.mean(acc_values[acc_valid_mask]):.2%}\n ')
+            print(f'f-mIoU: \t {np.sum(iou_values[iou_valid_mask]*weights_values[iou_valid_mask])/weights_values[iou_valid_mask].sum():.2%}; f-mAcc: \t {np.sum(acc_values[acc_valid_mask]*weights_values[acc_valid_mask])/weights_values[acc_valid_mask].sum():.2%}\n')
     confusion = confusion.sum(0) #agregate all scenes statistics
     iou_values, iou_valid_mask, weights_values, acc_values, acc_valid_mask = iou_acc_from_confmat(confusion, num_classes, ignore, mask_nan, verbose, labels)
+    metrics = {
+        "iou": round(np.mean(iou_values[iou_valid_mask]),3),
+        "acc": round(np.mean(acc_values[acc_valid_mask]),3),
+        "fiou":round(np.sum(iou_values[iou_valid_mask]*weights_values[iou_valid_mask])/weights_values[iou_valid_mask].sum(), 3),
+        "facc":round(np.sum(acc_values[acc_valid_mask]*weights_values[acc_valid_mask])/weights_values[acc_valid_mask].sum(), 3),
+    }
+    thirds = len(iou_values)//3
+    for split, i in [['head',0], ['comm',1], ['tail',2]]:
+        idx_i, idx_e = thirds * i,thirds * (i + 1)
+        metrics[f"iou_{split}"] = round(np.mean(iou_values[idx_i:idx_e][iou_valid_mask[idx_i:idx_e]]), 3)
+        metrics[f"acc_{split}"] = round(np.mean(acc_values[idx_i:idx_e][acc_valid_mask[idx_i:idx_e]]), 3)
 
     if verbose:
-        print(f'\nmIoU: \t {np.mean(iou_values[iou_valid_mask]):.2%}; mAcc: \t {np.mean(acc_values[acc_valid_mask]):.2%}\n ')
-        print(f'f-mIoU: \t {np.sum(iou_values[iou_valid_mask]*weights_values[iou_valid_mask])/weights_values[iou_valid_mask].sum():.2%}; f-mAcc: \t {np.sum(acc_values[acc_valid_mask]*weights_values[acc_valid_mask])/weights_values[acc_valid_mask].sum():.2%}\n')
+        print(f"\nmIoU: \t {metrics['iou']:.2%}; mAcc: \t {metrics['acc']:.2%}\n ")
+        print(f"f-mIoU: \t {metrics['fiou']:.2%}; f-mAcc: \t {metrics['facc']:.2%}\n")
+        print()
         if iou_values.shape[0]==51:
             for i, split in enumerate(['head', 'comm', 'tail']):
-                idx_i, idx_e = 17 * i,17 * (i + 1)
-                print(f'{split}: \t {np.mean(iou_values[idx_i:idx_e][iou_valid_mask[idx_i:idx_e]]):.2%}')
-                print(f'{split}: \t {np.mean(acc_values[idx_i:idx_e][acc_valid_mask[idx_i:idx_e]]):.2%}')
+                idx_i, idx_e = thirds * i,thirds * (i + 1)
+                print(f'{split}: \t {metrics[f"iou_{split}"]:.2%}')
+                print(f'{split}: \t {metrics[f"acc_{split}"]:.2%}')
                 print('---')
         if isinstance(output_path, str):
             output_path = Path(output_path)
@@ -216,7 +230,8 @@ def eval_semantics(output_path: str, gt_path: str, scenes: List[str], dataset_in
     if verbose:
         plot_metrics(iou_values, acc_values, labels, output_path, ignore)
         plot_confmat(confusion, labels, output_path)
-
+    if return_metrics:
+        return metrics, confusion
     return np.mean(iou_values[iou_valid_mask]), confusion
      
 

@@ -33,6 +33,7 @@ class Instance3D:
         self.kfs_ids = []
         self.points_ids = []
         self.top_kf = []
+        self.to_update = False
         if kf_id is not None:
             self.update(points_ids, kf_id, mask_area)
 
@@ -116,19 +117,20 @@ class Instance3D:
         """
         return self.idx_in_top_kf(kf_id) > -1     
 
-    def update_clip(self, keyframes_clips: Dict[int, Dict[int, torch.Tensor]]) -> None:
+    def update_clip(self, keyframes_clips: Dict[int, Dict[int, torch.Tensor]], force_update: bool = False) -> None:
         """If self.to_update is True, compute CLIP vector minimizing L1 norm of associated clip vectors from keyframes where the object was observed. Minimizing the L1 norm is equivalent to compute the median of the vector's norm.
         Args:
             - keyframes_clips (Dict[int, Dict[int, torch.Tensor]]): for each keyfram store a dictionary where the keys are object ids and values are associated clip vectors.
+            - force_update (bool): if True, recomputed Instance3D descriptors even self.to_update == False
         Updates:
             - self.clip_feature
             - self.clip_feature_kf
             - self.to_update
         """
-        if self.to_update:
+        if self.to_update or force_update:
             clips = []
             if self.n_top_kf > 0:
-                for _, kf in self.top_kf:
+                for _, kf in heapq.nlargest(self.n_top_kf,self.top_kf):
                     kf_clips = keyframes_clips.get(kf)
                     if kf_clips is not None:
                         clips.append(kf_clips[self.id])
@@ -165,7 +167,7 @@ class Instance3D:
         if debug_info:
             obj_dict.update({
             f"ins3d_{self.id}_keyframes_ids":  np.array(self.kfs_ids),
-            f"ins3d_{self.id}_points_ids":  self.points_ids.numpy(),
+            f"ins3d_{self.id}_points_ids":  np.array(self.points_ids),
             f"ins3d_{self.id}_top_kfs":  np.array(self.top_kf),
             })
 
@@ -180,6 +182,7 @@ class Instance3D:
         """
         self.clip_feature = obj_dict[f"ins3d_{self.id}_clip_feature"]
         self.clip_feature_kf = obj_dict.get(f"ins3d_{self.id}_clip_feature_kf", None)
+        self.to_update=self.clip_feature is None
         if debug_info:
             self.kfs_ids = obj_dict[f"ins3d_{self.id}_keyframes_ids"].tolist()
             self.points_ids = obj_dict[f"ins3d_{self.id}_points_ids"].tolist()

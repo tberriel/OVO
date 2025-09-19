@@ -60,8 +60,9 @@ class OVO:
         self.th_cossim = config.get("th_cossim", 0.81)
         self.th_points = config.get("th_points", 0.1)
 
-        print('Semantic config')
-        pprint.PrettyPrinter().pprint(config)
+        if config.get("verbose", True):
+            print('Semantic config')
+            pprint.PrettyPrinter().pprint(config)
 
 
     def to(self, device: str) -> None:
@@ -455,11 +456,13 @@ class OVO:
             self.objects[ins_id].update_clip(self.keyframes["ins_descriptors"])
         return
     
-    def update_objects_clip(self) -> None:
+    def update_objects_clip(self, force_update: bool = False) -> None:
         """ Update all 3D instances descriptors
+        Args:
+            - force_update (bool): if True, recomputed Instance3D descriptors even Insatance_3D.to_update == False
         """
         for object in self.objects.values():
-            object.update_clip(self.keyframes["ins_descriptors"])
+            object.update_clip(self.keyframes["ins_descriptors"], force_update=force_update)
         return
     
     @torch.no_grad()
