@@ -1,16 +1,16 @@
 dataset_name: "scannet"
 mapping:
   new_submap_every: 10000
-  map_every: 5
+  map_every: 1
   iterations: 100
   new_submap_iterations: 100
   new_submap_points_num: 200000 
   new_submap_gradient_points_num: 50000 
-  new_frame_sample_size: -1 #30000 
-  new_points_radius: 0.0000001
+  new_frame_sample_size: 30000  #-1
+  new_points_radius: 0.0001 #0.0000001
   current_view_opt_iterations: 0.4 # What portion of iterations to spend on the current view
   alpha_thre: 0.6
-  pruning_thre: 0.1
+  pruning_thre: 0.5 #0.1
   submap_using_motion_heuristic: False
 tracking:
   gt_camera: False

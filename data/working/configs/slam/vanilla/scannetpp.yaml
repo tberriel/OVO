@@ -1,1 +1,7 @@
 dataset_name: "scannetpp"
+mapping:
+  max_frame_points: 1e5
+  k_pooling: 5
+  downscale_ratio: 1
+tracking:
+  track_every: 5
