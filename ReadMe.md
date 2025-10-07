@@ -44,15 +44,14 @@ conda install faiss-gpu=1.8.0 cudnn -c pytorch -c conda-forge
 conda install cuda-toolkit=12.1 -c nvidia/label/cuda-12.1.0
 pip install git+https://github.com/VladimirYugay/simple-knn.git@c7e51a06a4cd84c25e769fee29ab391fe5d5ff8d git+https://github.com/VladimirYugay/gaussian_rasterizer.git@9c40173fcc8d9b16778a1a8040295bc2f9
 ```
-### ORB-SLAM2 (Optional)
+### ORB-SLAM3 (Optional)
 Clone the repository:
 ```
 cd thirdParty/
-git clone https://github.com/tberriel/ORB_SLAM2
-cd ORB_SLAM2
-git checkout ovo-mapping
+git clone https://github.com/tberriel/ORB_SLAM3
+cd ORB_SLAM3
 ```
-Manually install ORB-SLAM2 dependencies into the conda environment:
+Manually install ORB-SLAM3 dependencies into the conda environment:
 ```
 conda activate ovo
 # Instal conda C compilers to avoid relying on system defaults
