@@ -9,9 +9,6 @@
     <a href='https://tberriel.github.io/ovo/'><img src='https://img.shields.io/badge/Web-Page-green'></a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 </div>
 
-## Changelog:
-
-- 10, June, 2025 - Improved integration with ORB-SLAM2 and added loop closure support.
 
 ## Installation
 Following instruction are for an Ubuntu>=20.04 system, with installed Conda and CUDA support.
@@ -93,16 +90,18 @@ OVO configuration can be modified in `data/working/configs/ovo.yaml`. To speedup
     ```
     python run_eval.py --dataset_name ScanNet --experiment_name ovo_mapping --run --segment --eval --scenes scene0011_00
     ```
-## TODO:
-- [ ] Upload Replica and ScanNet checkpoints
+
+## Changelog:
+- 7, October, 2025  - Switched from ORB-SLAM2 to ORB-SLAM3 to minimize segmentation fault errors. 
+- 10, June, 2025 - Improved integration with ORB-SLAM2 and added loop closure support.
 
 ## Citation
 If you found our work useful, please cite us.
 ```
     @article{martins2024ovo,
     title={Open-Vocabulary Online Semantic Mapping for SLAM},
-    author={Martins, Tomas Berriel and Oswald, Martin R and Civera, Javier},
-    journal={arXiv preprint arXiv:2411.15043},
-    year={2024}
+    author={Martins, Tomas Berriel and Oswald, Martin R. and Civera, Javier},
+    journal={IEEE Robotics and Automation Letters}, 
+    year={2025},
     }
 ```
