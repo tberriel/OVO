@@ -7,7 +7,7 @@ data:
 seed: 0
 slam:
   config_path: data/working/configs/slam
-  slam_module: orbslam #vanilla #gaussian_slam #
+  slam_module: vanilla #orbslam #vanilla #gaussian_slam #
   use_viewer: False # only used with orbslam
   close_loops: True # only used with orbslam
   save_estimated_cam: True

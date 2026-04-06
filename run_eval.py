@@ -15,6 +15,35 @@ import shutil
 from ovo.utils import io_utils, gen_utils, eval_utils
 from ovo.entities.ovomapping import OVOSemMap
 from ovo.entities.ovo import OVO
+from PIL import Image
+import torchvision.transforms as T
+
+def debug_architecture_flow(scene_path: Path, image_path: str):
+    """
+    아키텍처의 핵심 계층을 한 단계씩 훑어보기 위한 디버그 함수
+    """
+    print(f"🚀 [Debug] Starting architecture walkthrough with: {image_path}")
+    
+    # 1. 모델 로드 과정 확인
+    # 여기서 Step Into(F11)를 하면 OVO 클래스의 생성자와 CLIP/Backbone 로드 과정을 볼 수 있습니다.
+    ovo, _ = load_representation(scene_path, eval=True, debug_info=True)
+    
+    # 2. 이미지 입력 및 특징 추출 (Vision Encoder)
+    img = Image.open(image_path).convert("RGB")
+    transform = T.Compose([T.Resize((224, 224)), T.ToTensor()])
+    input_tensor = transform(img).unsqueeze(0).cuda()
+    
+    print("🔍 [Step 1] Checking Vision Encoder...")
+    # 이 지점에서 breakpoint를 걸고 ovo 내부의 encoder를 확인하세요.
+    breakpoint() 
+    
+    # 3. 텍스트-이미지 정렬 및 분류 (Open-Vocabulary Logic)
+    print("🔍 [Step 2] Checking Semantic Classification...")
+    # ovo.classify_instances 내부에서 CLIP 텍스트 임베딩과 매칭되는 로직이 실행됩니다.
+    classes = ["desk", "chair", "monitor", "world map", "clock"]
+    results = ovo.classify_instances(classes)
+    
+    print(f" Detection Results: {results['classes']}")
 
 def load_representation(scene_path: Path, eval: bool=False, debug_info: bool=False) -> OVO:
     config = io_utils.load_config(scene_path / "config.yaml", inherit=False)
@@ -145,6 +174,27 @@ def main(args):
 
     for scene in scenes:        
         input_path = f"./data/input/Datasets/{args.dataset_name}/{scene}"
+
+        ### debugging code
+        if scene == "office0": # 혹은 원하는 씬 이름
+            # experiment_path는 main 상단에서 정의됨
+            scene_path = experiment_path / scene 
+            image_path = "images/office.jpg" # 아까 만드신 폴더 구조 기준
+            
+            # 모델 결과물(.ckpt)이 있는 경로인지 확인 후 실행
+            if scene == "office0":
+                scene_path = experiment_path / scene 
+                image_path = "images/office.jpg"
+                
+                # 폴더가 아니라 실제 .ckpt 파일이 있는지 확인!
+                if (scene_path / "ovo_map.ckpt").exists():
+                    debug_architecture_flow(scene_path, image_path)
+                    print("🛑 Architecture debugging complete. Exiting...")
+                    return
+                else:
+                    print(f"ℹ️ {scene_path / 'ovo_map.ckpt'}가 아직 없습니다. 모델 생성을 시작합니다.")
+        ### end of debugging code
+
         if args.run:
             t0 = time.time()
             run_scene(scene, args.dataset_name, experiment_name, tmp_run = tmp_run)
