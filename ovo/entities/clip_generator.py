@@ -22,7 +22,7 @@ class CLIPGenerator:
                 model_config = yaml.full_load(f)
             pt_path = os.path.join(config["weights_predictor_path"], "model.pt")
 
-            model_weights = torch.load(pt_path, weights_only=False)
+            model_weights = torch.load(pt_path, weights_only=True)
             self.clips_fusion_model = WeightsPredictorMerger(model_config["model"]).eval()
             self.clips_fusion_model.load_state_dict(model_weights)
 
